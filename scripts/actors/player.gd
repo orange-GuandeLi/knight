@@ -11,6 +11,10 @@ const ACCEL := 800.0
 const FRICTION := 1000.0
 const JUMP_VELOCITY := -262.0
 const ROLL_JUMP_VELOCITY := -300.0
+# 可变跳跃高度：上升途中松开跳跃键，上升速度最多保留到这个值（越接近 0 跳得越矮）
+const JUMP_CUT := -130.0
+# 总共能跳几次：2 = 二段跳（地面一次 + 空中一次）
+const MAX_JUMPS := 2
 const GRAVITY := 720.0
 const MAX_FALL := 340.0
 const COYOTE_TIME := 0.10
@@ -48,6 +52,7 @@ var roll_cd := 0.0
 var in_water := false
 var on_ladder := false
 var climbing := false
+var jumps_left := MAX_JUMPS
 var dead := false
 var level_bottom := 768.0
 
@@ -88,17 +93,30 @@ func _physics_process(delta: float) -> void:
 	if absf(dir) > 0.01:
 		facing = 1 if dir > 0.0 else -1
 
-	# 爬梯：按上下就进入攀爬，按左右就脱离
-	if on_ladder and (Input.is_action_pressed("jump") or Input.is_action_pressed("down")):
+	# 爬梯：上键 / 下键进入攀爬，按左右脱离，按跳跃蹬梯跳
+	# 上键现在只负责爬梯，不再触发跳跃
+	var climb_up := Input.is_action_pressed("climb_up")
+	var climb_down := Input.is_action_pressed("down")
+	if on_ladder and (climb_up or climb_down):
 		climbing = true
 	if not on_ladder or absf(dir) > 0.01:
 		climbing = false
 
 	if climbing:
+		if Input.is_action_just_pressed("jump"):
+			# 蹬梯跳
+			climbing = false
+			velocity.y = JUMP_VELOCITY
+			jumps_left = MAX_JUMPS - 1
+			Audio.play_sfx("jump")
+			_apply_gravity(delta, GRAVITY, MAX_FALL)
+			move_and_slide()
+			_update_anim()
+			return
 		velocity.x = 0.0
-		if Input.is_action_pressed("jump"):
+		if climb_up:
 			velocity.y = -CLIMB_SPEED
-		elif Input.is_action_pressed("down"):
+		elif climb_down:
 			velocity.y = CLIMB_SPEED
 		else:
 			velocity.y = 0.0
@@ -122,35 +140,51 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer = JUMP_BUFFER
 
+	var on_ground := is_on_floor()
+	var can_ground_jump := on_ground or coyote > 0.0
+	var can_jump := can_ground_jump or jumps_left > 0
+
 	if in_water:
 		# 水里：可以一直按住跳跃往上浮
 		if Input.is_action_pressed("jump"):
 			velocity.y = WATER_SWIM
 		else:
 			_apply_gravity(delta, WATER_GRAVITY, WATER_MAX_FALL)
-	elif jump_buffer > 0.0 and (is_on_floor() or coyote > 0.0):
+	elif jump_buffer > 0.0 and can_jump:
 		jump_buffer = 0.0
-		coyote = 0.0
-		if Input.is_action_pressed("down") and roll_cd <= 0.0:
+		if can_ground_jump:
+			coyote = 0.0
+			jumps_left = MAX_JUMPS - 1      # 地面跳用掉第一段
+		else:
+			jumps_left -= 1                 # 空中跳
+		if Input.is_action_pressed("down") and can_ground_jump and roll_cd <= 0.0:
 			# 下 + 跳跃 = 翻滚跳
 			roll_time = ROLL_TIME
 			roll_cd = ROLL_COOLDOWN
 			velocity.y = ROLL_JUMP_VELOCITY
-			Audio.play_sfx("jump")
 		else:
 			velocity.y = JUMP_VELOCITY
 		Audio.play_sfx("jump")
-		_apply_gravity(delta, GRAVITY, MAX_FALL)
-	else:
-		_apply_gravity(delta, GRAVITY, MAX_FALL)
 
-	if is_on_floor():
-		coyote = COYOTE_TIME
-	else:
-		coyote = maxf(0.0, coyote - delta)
+	# 可变跳跃高度：还在上升却没按住跳跃键，就把上升速度砍掉
+	if velocity.y < 0.0 and not Input.is_action_pressed("jump"):
+		velocity.y = maxf(velocity.y, JUMP_CUT)
+
+	_apply_gravity(delta, GRAVITY, MAX_FALL)
 
 	var was_rising := velocity.y < 0.0
 	move_and_slide()
+
+	# 落地后才刷新跳跃次数。必须放在 move_and_slide 之后：
+	# 起跳那一帧 is_on_floor() 还是 true，放前面会把次数刷回满。
+	if is_on_floor():
+		coyote = COYOTE_TIME
+		jumps_left = MAX_JUMPS
+	else:
+		coyote = maxf(0.0, coyote - delta)
+		# 走着掉下平台、没用地面跳的，空中只剩一段
+		if coyote <= 0.0 and jumps_left == MAX_JUMPS:
+			jumps_left = MAX_JUMPS - 1
 
 	# 顶到天花板 -> 通知关卡（撞问号块）
 	if was_rising and is_on_ceiling():
@@ -216,6 +250,7 @@ func respawn(pos: Vector2) -> void:
 	roll_time = 0.0
 	roll_cd = 0.0
 	climbing = false
+	jumps_left = MAX_JUMPS
 	invuln = INVULN_TIME
 	velocity = Vector2.ZERO
 	global_position = pos

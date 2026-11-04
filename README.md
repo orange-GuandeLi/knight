@@ -176,8 +176,12 @@ assets/ui/pixel_theme.tres  HUD 主题（默认字体 = Pixel Operator 8）
 python3 tools/make_level.py     # 重新生成关卡地形
 python3 tools/build_atlases.py  # 素材有变动时重打图集
 Godot --headless --path . --script res://tools/build_tileset.gd   # 重建成 TileSet
-python3 tools/preview_level.py /tmp/lv.png   # 渲染一张关卡预览图
+python3 tools/preview_level.py /tmp/lv.png   # 用图集渲染关卡预览图（不用开引擎）
+Godot --path . res://tools/Screenshot.tscn --resolution 1280x720   # 截真实游戏画面
 ```
+
+`tools/Screenshot.tscn` 会截一帧存到 `/tmp/game_shot.png`，加 `-- clear` 还能截通关提示那张。
+**必须带窗口跑**，`--headless` 没有渲染输出。
 
 ## 自测
 

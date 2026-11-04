@@ -5,3 +5,5 @@
 [resource]
 default_font = ExtResource("1_font")
 default_font_size = 32
+Label/colors/font_outline_color = Color(0.09, 0.11, 0.13, 1)
+Label/constants/outline_size = 2

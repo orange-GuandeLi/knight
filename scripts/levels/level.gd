@@ -9,6 +9,7 @@ const PICKUP_SCENE := preload("res://scenes/objects/Pickup.tscn")
 
 const TILE := 16
 const CLEAR_COL := 4             # 离右边界还剩几列就算通关
+const DECOR_MARK := "P"          # 关卡数据里植物占位用的字符，不铺地形砖
 
 var width := 0
 var height := 0
@@ -154,7 +155,7 @@ func _paint_map() -> void:
 		var row := _row(y)
 		for x in width:
 			var ch := row[x]
-			if ch == "." or entity_names.has(ch):
+			if ch == "." or ch == DECOR_MARK or entity_names.has(ch):
 				continue
 			var key: String = tile_names.get(ch, "")
 			if key == "":

@@ -105,6 +105,24 @@ knight/
 [audio](assets/audio/README.md) ·
 [fonts](assets/fonts/README.md)
 
+## HUD
+
+只用图标，不写文字标签：
+
+| 显示 | 内容 |
+|---|---|
+| 金币 | 金币图标 + `12/30` |
+| 体力 | 3 颗爱心，掉血变暗色空心爱心 |
+| 命数 | 骑士头像（`idle_00` 裁出来的 13×19）+ `x3` |
+| 分数 | 纯数字，放最右 |
+
+图标来源：骑士和金币直接从角色素材裁内容框，不新增美术；
+爱心素材里没有，按 `assets/PALETTE.md` 的红族色板画了一个 8×7 的（实心 + 空心两版），
+生成脚本 `tools/make_ui_icons.py`。
+
+整条高 26px（占视口高 7%），内容宽约 194px（占视口宽 30%）。
+**注意 UI 字还是英文**——点阵字体没有中文字形。
+
 ## 怎么玩
 
 打开项目直接 F5（或命令行 `Godot --path .`），主场景就是 `scenes/main/Main.tscn`。
@@ -163,7 +181,7 @@ scenes/
   actors/Slime.tscn     史莱姆
   objects/Coin.tscn     金币
   objects/Pickup.tscn   蘑菇 / 药瓶 / 水果
-  ui/HUD.tscn           分数 / 金币 / 血 / 命（点阵字体）
+  ui/HUD.tscn           状态条：金币图标+数量 / 爱心 / 骑士头像+命数 / 分数
 
 scripts/
   main.gd               重开
@@ -183,6 +201,7 @@ assets/tilesets/world/
   plants/               树（顶/身/底，body 可重复）+ 草丛
   atlases/              图集（由 tools/build_atlases.py 生成）
 
+assets/ui/icons/        HUD 图标（骑士、金币从角色素材裁出；爱心按红色色板画的 8x7）
 assets/audio/           音乐 + 音效
 assets/fonts/           点阵字体
 assets/ui/pixel_theme.tres  HUD 主题（默认字体 = Pixel Operator 8）

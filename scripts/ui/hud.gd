@@ -1,10 +1,19 @@
 extends CanvasLayer
 ## 顶部状态条 + 中间提示文字。
+##
+## 状态条只用图标，不写文字：金币图标 + 数量 / 爱心 / 骑士头像 + 数量 / 纯数字分数。
 
-@onready var score_label: Label = $Top/Box/Score
-@onready var coins_label: Label = $Top/Box/Coins
-@onready var health_label: Label = $Top/Box/Health
-@onready var lives_label: Label = $Top/Box/Lives
+const HEART_FULL := preload("res://assets/ui/icons/icon_heart_full.png")
+const HEART_EMPTY := preload("res://assets/ui/icons/icon_heart_empty.png")
+
+@onready var coins_label: Label = $Row/Coins/Count
+@onready var hearts: Array[TextureRect] = [
+	get_node("Row/Hearts/H1") as TextureRect,
+	get_node("Row/Hearts/H2") as TextureRect,
+	get_node("Row/Hearts/H3") as TextureRect,
+]
+@onready var lives_label: Label = $Row/Lives/Count
+@onready var score_label: Label = $Row/Score
 @onready var message: Label = $Message
 
 
@@ -28,10 +37,16 @@ func _on_coins(_c: int, _t: int) -> void:
 
 
 func _refresh() -> void:
-	score_label.text = "SCORE %d" % Game.score
-	coins_label.text = "COINS %d/%d" % [Game.coins, Game.total_coins]
-	health_label.text = "HP %d/%d" % [Game.health, Game.MAX_HEALTH]
-	lives_label.text = "LIVES %d" % Game.lives
+	coins_label.text = "%d/%d" % [Game.coins, Game.total_coins]
+	score_label.text = str(Game.score)
+	lives_label.text = "x%d" % Game.lives
+
+	# 爱心：掉的血变成暗色的空心爱心
+	for i in hearts.size():
+		var h := hearts[i]
+		h.visible = i < Game.MAX_HEALTH
+		if h.visible:
+			h.texture = HEART_FULL if i < Game.health else HEART_EMPTY
 
 
 func _on_game_over() -> void:

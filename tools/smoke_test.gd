@@ -81,6 +81,21 @@ func _on_physics() -> void:
 			if hud != null:
 				msg = hud.get_node("Message").text
 			_check("HUD 显示通关文字", msg.contains("CLEAR"), "message=%s" % msg.replace("\n", " / "))
+		465:
+			pass
+		475:
+			# HUD 图标状态：掉 2 点血 -> 第 2、3 颗爱心变空心
+			var hud = main.get_node_or_null("HUD")
+			Game.health = 1
+			Game.health_changed.emit(1)
+			var hs: Array = hud.hearts
+			var full := String(hs[0].texture.resource_path).contains("full")
+			var e1 := String(hs[1].texture.resource_path).contains("empty")
+			var e2 := String(hs[2].texture.resource_path).contains("empty")
+			_check("HUD 爱心随血量变化", full and e1 and e2,
+				"血1 -> %s" % [("实心" if full else "?") + "/" + ("空心" if e1 and e2 else "?")])
+			_check("HUD 命数显示", hud.lives_label.text == "x%d" % Game.lives,
+				"命文本 '%s'" % hud.lives_label.text)
 		490:
 			print("\n===== 冒烟测试 =====")
 			var ok := 0

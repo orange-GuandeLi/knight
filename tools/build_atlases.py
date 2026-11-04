@@ -109,6 +109,10 @@ def main():
     bg = [(f[:-4], os.path.join(WORLD, "background", f)) for f in list_pngs("background")]
     index["bg"] = pack("bg", bg)
 
+    # 植物：树（顶/身/底三段）+ 草丛
+    plants = [(f[:-4], os.path.join(WORLD, "plants", f)) for f in list_pngs("plants")]
+    index["plants"] = pack("plants", plants)
+
     with open("tools/atlas_index.json", "w", encoding="utf-8") as f:
         json.dump(index, f, ensure_ascii=False, indent=1, sort_keys=True)
 

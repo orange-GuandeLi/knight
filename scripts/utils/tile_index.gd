@@ -2,7 +2,7 @@ class_name TileIndex
 extends RefCounted
 ## 砖名 <-> 图集坐标 的双向查找。数据来自 tools/atlas_index.json。
 
-const GROUPS := ["terrain", "props", "water", "bg"]
+const GROUPS := ["terrain", "props", "water", "bg", "plants"]
 const INDEX_PATH := "res://tools/atlas_index.json"
 
 static var _loaded := false

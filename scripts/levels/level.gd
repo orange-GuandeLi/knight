@@ -17,9 +17,12 @@ var map_rows: Array = []
 var tile_names: Dictionary = {}
 var entity_names: Dictionary = {}
 var spawn := Vector2i(4, 26)
+var trees: Array = []
+var grass: Array = []
 
 @onready var terrain: TileMapLayer = $Terrain
 @onready var background: TileMapLayer = $Background
+@onready var decor: TileMapLayer = $Decor
 @onready var entities: Node2D = $Entities
 @onready var player: Player = $Player
 
@@ -35,6 +38,7 @@ func _ready() -> void:
 	_setup_player()
 	_paint_background()
 	_paint_map()
+	_paint_decor()
 	_spawn_entities()
 
 	Game.total_coins = _count_char("o")
@@ -59,6 +63,9 @@ func _load_data() -> void:
 	entity_names = d.get("entities", {})
 	var sp: Array = d.get("spawn", [4, 26])
 	spawn = Vector2i(int(sp[0]), int(sp[1]))
+	var deco: Dictionary = d.get("decor", {})
+	trees = deco.get("trees", [])
+	grass = deco.get("grass", [])
 
 
 func _setup_player() -> void:
@@ -123,6 +130,22 @@ func _paint_background() -> void:
 			continue
 		for x in width:
 			background.set_cell(Vector2i(x, y), c.source, c.coords)
+
+
+## 植物：树 = 顶部 + body×N + 底部，草丛 = 单格
+func _paint_decor() -> void:
+	for g in grass:
+		_put(decor, Vector2i(int(g["x"]), int(g["y"])), "grass_%s_%d" % [g["kind"], int(g["n"])])
+	for t in trees:
+		var x := int(t["x"])
+		var y := int(t["y"])
+		var kind: String = t["kind"]
+		var bodies := int(t["bodies"])
+		_put(decor, Vector2i(x, y), "tree_%s_bottom" % kind)
+		for i in bodies:
+			_put(decor, Vector2i(x, y - 1 - i), "tree_%s_body" % kind)
+		_put(decor, Vector2i(x, y - 1 - bodies), "tree_%s_top" % kind)
+	print("[关卡] 树 %d 棵，草丛 %d 株" % [trees.size(), grass.size()])
 
 
 func _paint_map() -> void:

@@ -151,6 +151,62 @@ for i, (x, y) in enumerate([(115, 25), (116, 24), (117, 23), (118, 22), (119, 21
 for y in range(TOP_ROWS):
     grid[y] = ["."] * W
 
+# ---------------------------------------------------------------- 植物装饰
+
+# 树：(列, 底部所在行, 颜色, body 段数)。body 可以任意多个，树就任意高。
+TREES = [
+    (9, 25, "green", 1),
+    (11, 25, "green", 0),
+    (34, 25, "green", 2),
+    (43, 25, "green", 1),
+    (86, 25, "green", 0),
+    (30, 25, "gold", 1),
+    (111, 25, "gold", 1),
+    (59, 25, "moss", 2),
+    (84, 25, "moss", 1),
+]
+
+# 草丛：(列, 行, 颜色, 第几株)
+GRASS = [
+    (2, 25, "green", 1),
+    (5, 25, "green", 2),
+    (19, 25, "green", 3),
+    (23, 25, "green", 1),
+    (36, 25, "green", 2),
+    (41, 25, "green", 3),
+    (60, 25, "green", 1),
+    (80, 25, "moss", 2),
+    (82, 25, "moss", 3),
+    (107, 25, "moss", 1),
+    (117, 22, "green", 2),
+]
+
+conflicts = []
+for (x, y, kind, bodies) in TREES:
+    cells = [(x, y)] + [(x, y - 1 - i) for i in range(bodies)] + [(x, y - 1 - bodies)]
+    for (cx, cy) in cells:
+        if 0 <= cx < W and 0 <= cy < H:
+            if grid[cy][cx] != ".":
+                conflicts.append("树 %s@x%d (x%d,y%d) 撞到 '%s'" % (kind, x, cx, cy, grid[cy][cx]))
+for (x, y, kind, n) in GRASS:
+    if grid[y][x] != ".":
+        conflicts.append("草 %s@x%d (x%d,y%d) 撞到 '%s'" % (kind, x, x, y, grid[y][x]))
+
+# 占位，防止植物互相重叠
+for (x, y, kind, bodies) in TREES:
+    for cy in range(y - bodies, y + 1):
+        grid[cy][x] = "P"
+for (x, y, kind, n) in GRASS:
+    grid[y][x] = "P"
+
+if conflicts:
+    print("!! 植物位置冲突 %d 处：" % len(conflicts))
+    for c in conflicts:
+        print("   " + c)
+else:
+    print("植物位置无冲突")
+
+
 # ---------------------------------------------------------------- 输出
 
 TILES = {
@@ -189,6 +245,10 @@ data = {
     "map": lines,
     "tiles": TILES,
     "entities": {"o": "coin", "e": "slime"},
+    "decor": {
+        "trees": [{"x": x, "y": y, "kind": k, "bodies": b} for (x, y, k, b) in TREES],
+        "grass": [{"x": x, "y": y, "kind": k, "n": n} for (x, y, k, n) in GRASS],
+    },
 }
 
 with open("scenes/levels/level01.json", "w", encoding="utf-8") as f:
@@ -197,4 +257,4 @@ with open("scenes/levels/level01.json", "w", encoding="utf-8") as f:
 n_coin = sum(1 for row in grid for c in row if c == "o")
 n_slime = sum(1 for row in grid for c in row if c == "e")
 print(f"写出 scenes/levels/level01.json  ({W}x{H}，顶部 {TOP_ROWS} 行留空)")
-print(f"金币 {n_coin} 个，史莱姆 {n_slime} 只")
+print(f"金币 {n_coin} 个，史莱姆 {n_slime} 只，树 {len(TREES)} 棵，草丛 {len(GRASS)} 株")

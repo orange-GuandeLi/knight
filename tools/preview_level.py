@@ -68,6 +68,21 @@ for y in range(y0, y1):
         if t:
             img.paste(t, (x * T, (y - y0) * T), t)
 
+# 植物层（画在地形之前，和游戏里 Decor 的 z_index=-5 一致）
+deco = d.get("decor", {})
+deco_img = Image.new("RGBA", (W * T, rows * T), (0, 0, 0, 0))
+for g in deco.get("grass", []):
+    t = tile("grass_%s_%d" % (g["kind"], int(g["n"])))
+    if t:
+        deco_img.paste(t, (int(g["x"]) * T, (int(g["y"]) - y0) * T), t)
+for tr in deco.get("trees", []):
+    x, y, kind, bodies = int(tr["x"]), int(tr["y"]), tr["kind"], int(tr["bodies"])
+    for (row, part) in [(y, "bottom")] + [(y - 1 - i, "body") for i in range(bodies)] + [(y - 1 - bodies, "top")]:
+        t = tile("tree_%s_%s" % (kind, part))
+        if t and y0 <= row < y1:
+            deco_img.paste(t, (x * T, (row - y0) * T), t)
+img.paste(deco_img.convert("RGB"), (0, 0), deco_img)
+
 # 实体标记
 from PIL import ImageDraw
 dr = ImageDraw.Draw(img)

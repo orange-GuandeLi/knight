@@ -11,6 +11,10 @@ script = ExtResource("1_level")
 tile_set = ExtResource("2_tileset")
 z_index = -10
 
+[node name="Decor" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_tileset")
+z_index = -5
+
 [node name="Terrain" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2_tileset")
 

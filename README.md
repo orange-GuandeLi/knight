@@ -88,7 +88,7 @@ knight/
 | 瓦片集 | 目录 | 内容 |
 |---|---|---|
 | 平台砖块 | `assets/tilesets/platforms/` | 原图集 `platforms.png` + 切出的 12 张 16×9 砖块（草地 / 泥土 / 黄金 / 冰块 × block / left / right） |
-| 世界地形集 | `assets/tilesets/world/` | 83 张 16×16：地形砖 20（地表 7 / 裂纹 8 / 实心 5）+ 桥 9（3 材质 × 开始 / 中间 / 结束）+ 互动块 8（4 材质 × 问号 / 感叹号）+ 木箱 2 + 木提示牌 2 + 木梯 2 + 水 12（4 色 × 水面 / 水面+水体 / 水体）+ 背景渐变 28（4 族 × 4 档纯色 + 3 张过渡块） |
+| 世界地形集 | `assets/tilesets/world/` | 98 张 16×16：地形砖 20（地表 7 / 裂纹 8 / 实心 5）+ 桥 9（3 材质 × 开始 / 中间 / 结束）+ 互动块 8（4 材质 × 问号 / 感叹号）+ 木箱 2 + 木提示牌 2 + 木梯 2 + 水 12（4 色 × 水面 / 水面+水体 / 水体）+ 背景渐变 28（4 族 × 4 档纯色 + 3 张过渡块）+ 植物 15（3 棵树 × 顶/身/底 + 2 色 × 3 株草丛） |
 
 配色家族对照表见 [assets/PALETTE.md](assets/PALETTE.md)。
 
@@ -101,6 +101,7 @@ knight/
 [potion](assets/sprites/potion/README.md) ·
 [platforms](assets/tilesets/platforms/README.md) ·
 [world](assets/tilesets/world/README.md) ·
+[plants](assets/tilesets/world/plants/README.md) ·
 [audio](assets/audio/README.md) ·
 [fonts](assets/fonts/README.md)
 
@@ -152,7 +153,8 @@ scripts/
   utils/level_bounds.gd 关卡像素边界
 
 assets/tilesets/world/
-  world_tileset.tres    TileSet（4 个图集源：地形 / 道具 / 水 / 背景）
+  world_tileset.tres    TileSet（5 个图集源：地形 / 道具 / 水 / 背景 / 植物）
+  plants/               树（顶/身/底，body 可重复）+ 草丛
   atlases/              图集（由 tools/build_atlases.py 生成）
 
 assets/audio/           音乐 + 音效

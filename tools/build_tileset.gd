@@ -6,7 +6,7 @@ extends SceneTree
 
 const ATLAS_DIR := "res://assets/tilesets/world/atlases"
 const OUT := "res://assets/tilesets/world/world_tileset.tres"
-const GROUPS := ["terrain", "props", "water", "bg"]
+const GROUPS := ["terrain", "props", "water", "bg", "plants"]
 
 # 物理层 -> 碰撞位
 const LAYER_WORLD := 0    # 位 1
@@ -72,8 +72,8 @@ func _physics_for(group: String, key: String) -> int:
 			return LAYER_WORLD
 		"water":
 			return LAYER_WATER
-		"bg":
-			return -1
+		"bg", "plants":
+			return -1   # 装饰，不挡路
 		"props":
 			if key.begins_with("ladder_"):
 				return LAYER_LADDER

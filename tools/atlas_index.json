@@ -1,0 +1,374 @@
+{
+ "bg": {
+  "bg_purple_1": [
+   0,
+   0
+  ],
+  "bg_purple_1_2": [
+   1,
+   0
+  ],
+  "bg_purple_2": [
+   2,
+   0
+  ],
+  "bg_purple_2_3": [
+   3,
+   0
+  ],
+  "bg_purple_3": [
+   4,
+   0
+  ],
+  "bg_purple_3_4": [
+   5,
+   0
+  ],
+  "bg_purple_4": [
+   6,
+   0
+  ],
+  "bg_sky_1": [
+   7,
+   0
+  ],
+  "bg_sky_1_2": [
+   8,
+   0
+  ],
+  "bg_sky_2": [
+   9,
+   0
+  ],
+  "bg_sky_2_3": [
+   10,
+   0
+  ],
+  "bg_sky_3": [
+   11,
+   0
+  ],
+  "bg_sky_3_4": [
+   12,
+   0
+  ],
+  "bg_sky_4": [
+   13,
+   0
+  ],
+  "bg_stone_1": [
+   14,
+   0
+  ],
+  "bg_stone_1_2": [
+   15,
+   0
+  ],
+  "bg_stone_2": [
+   0,
+   1
+  ],
+  "bg_stone_2_3": [
+   1,
+   1
+  ],
+  "bg_stone_3": [
+   2,
+   1
+  ],
+  "bg_stone_3_4": [
+   3,
+   1
+  ],
+  "bg_stone_4": [
+   4,
+   1
+  ],
+  "bg_warm_1": [
+   5,
+   1
+  ],
+  "bg_warm_1_2": [
+   6,
+   1
+  ],
+  "bg_warm_2": [
+   7,
+   1
+  ],
+  "bg_warm_2_3": [
+   8,
+   1
+  ],
+  "bg_warm_3": [
+   9,
+   1
+  ],
+  "bg_warm_3_4": [
+   10,
+   1
+  ],
+  "bg_warm_4": [
+   11,
+   1
+  ]
+ },
+ "props": {
+  "block_dirt_exclaim": [
+   9,
+   0
+  ],
+  "block_dirt_exclaim_used": [
+   10,
+   0
+  ],
+  "block_dirt_question": [
+   11,
+   0
+  ],
+  "block_dirt_question_used": [
+   12,
+   0
+  ],
+  "block_pale_rock_exclaim": [
+   13,
+   0
+  ],
+  "block_pale_rock_exclaim_used": [
+   14,
+   0
+  ],
+  "block_pale_rock_question": [
+   15,
+   0
+  ],
+  "block_pale_rock_question_used": [
+   0,
+   1
+  ],
+  "block_purple_rock_exclaim": [
+   1,
+   1
+  ],
+  "block_purple_rock_exclaim_used": [
+   2,
+   1
+  ],
+  "block_purple_rock_question": [
+   3,
+   1
+  ],
+  "block_purple_rock_question_used": [
+   4,
+   1
+  ],
+  "block_stone_exclaim": [
+   5,
+   1
+  ],
+  "block_stone_exclaim_used": [
+   6,
+   1
+  ],
+  "block_stone_question": [
+   7,
+   1
+  ],
+  "block_stone_question_used": [
+   8,
+   1
+  ],
+  "bridge_dirt_end": [
+   0,
+   0
+  ],
+  "bridge_dirt_middle": [
+   1,
+   0
+  ],
+  "bridge_dirt_start": [
+   2,
+   0
+  ],
+  "bridge_pale_rock_end": [
+   3,
+   0
+  ],
+  "bridge_pale_rock_middle": [
+   4,
+   0
+  ],
+  "bridge_pale_rock_start": [
+   5,
+   0
+  ],
+  "bridge_purple_rock_end": [
+   6,
+   0
+  ],
+  "bridge_purple_rock_middle": [
+   7,
+   0
+  ],
+  "bridge_purple_rock_start": [
+   8,
+   0
+  ],
+  "crate_dirt": [
+   9,
+   1
+  ],
+  "crate_purple_rock": [
+   10,
+   1
+  ],
+  "ladder_dirt": [
+   13,
+   1
+  ],
+  "ladder_purple_rock": [
+   14,
+   1
+  ],
+  "sign_dirt": [
+   11,
+   1
+  ],
+  "sign_purple_rock": [
+   12,
+   1
+  ]
+ },
+ "terrain": {
+  "cracked_dirt": [
+   0,
+   0
+  ],
+  "cracked_dirt_2": [
+   1,
+   0
+  ],
+  "cracked_pale_rock": [
+   2,
+   0
+  ],
+  "cracked_pale_rock_2": [
+   3,
+   0
+  ],
+  "cracked_purple_rock": [
+   4,
+   0
+  ],
+  "cracked_purple_rock_2": [
+   5,
+   0
+  ],
+  "cracked_stone": [
+   6,
+   0
+  ],
+  "cracked_stone_2": [
+   7,
+   0
+  ],
+  "dirt": [
+   8,
+   0
+  ],
+  "grass_dirt": [
+   9,
+   0
+  ],
+  "ice": [
+   10,
+   0
+  ],
+  "ice_stone": [
+   11,
+   0
+  ],
+  "ore_gold": [
+   12,
+   0
+  ],
+  "pale_rock": [
+   13,
+   0
+  ],
+  "purple_rock": [
+   14,
+   0
+  ],
+  "sand_pale_rock": [
+   15,
+   0
+  ],
+  "sand_pale_rock_2": [
+   0,
+   1
+  ],
+  "snow_ice": [
+   1,
+   1
+  ],
+  "snow_stone": [
+   2,
+   1
+  ],
+  "stone": [
+   3,
+   1
+  ]
+ },
+ "water": {
+  "water_deep_blue_body": [
+   0,
+   0
+  ],
+  "water_deep_blue_surface": [
+   1,
+   0
+  ],
+  "water_deep_blue_surface_body": [
+   2,
+   0
+  ],
+  "water_gold_body": [
+   3,
+   0
+  ],
+  "water_gold_surface": [
+   4,
+   0
+  ],
+  "water_gold_surface_body": [
+   5,
+   0
+  ],
+  "water_ice_body": [
+   6,
+   0
+  ],
+  "water_ice_surface": [
+   7,
+   0
+  ],
+  "water_ice_surface_body": [
+   8,
+   0
+  ],
+  "water_purple_body": [
+   9,
+   0
+  ],
+  "water_purple_surface": [
+   10,
+   0
+  ],
+  "water_purple_surface_body": [
+   11,
+   0
+  ]
+ }
+}

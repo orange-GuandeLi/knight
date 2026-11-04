@@ -1,0 +1,68 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_hurt_00.png" id="1_ngkhh"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_hurt_01.png" id="2_35jcq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_hurt_02.png" id="3_rxl8h"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_hurt_03.png" id="4_b4ak2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_idle_00.png" id="5_sesm2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_idle_01.png" id="6_6mlmd"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_idle_02.png" id="7_uivnq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_idle_03.png" id="8_ikyde"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_melt_00.png" id="9_kjvdu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_melt_01.png" id="10_uvscb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_melt_02.png" id="11_6bv3u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime/green/green_melt_03.png" id="12_dh5l8"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ngkhh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_35jcq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_rxl8h")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_b4ak2")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_sesm2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_6mlmd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_uivnq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_ikyde")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_kjvdu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_uvscb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_6bv3u")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_dh5l8")
+}],
+"loop": 0,
+"name": &"melt",
+"speed": 8.0
+}]

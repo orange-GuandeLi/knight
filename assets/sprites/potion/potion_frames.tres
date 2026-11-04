@@ -1,0 +1,41 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/potion/potion_blue.png" id="1_1au28"]
+[ext_resource type="Texture2D" path="res://assets/sprites/potion/potion_gold.png" id="2_p6whv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/potion/potion_green.png" id="3_rf7m7"]
+[ext_resource type="Texture2D" path="res://assets/sprites/potion/potion_purple.png" id="4_1aj5t"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_1au28")
+}],
+"loop": 1,
+"name": &"blue",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_p6whv")
+}],
+"loop": 1,
+"name": &"gold",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_rf7m7")
+}],
+"loop": 1,
+"name": &"green",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_1aj5t")
+}],
+"loop": 1,
+"name": &"purple",
+"speed": 8.0
+}]

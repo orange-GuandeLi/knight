@@ -23,3 +23,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		Game.reset()
 		get_tree().reload_current_scene()
+	elif event.is_action_pressed("toggle_fullscreen"):
+		get_viewport().set_input_as_handled()
+		var fs := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+		DisplayServer.window_set_mode(
+			DisplayServer.WINDOW_MODE_WINDOWED if fs else DisplayServer.WINDOW_MODE_FULLSCREEN)

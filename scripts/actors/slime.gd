@@ -81,6 +81,7 @@ func squash() -> void:
 		return
 	dead = true
 	Game.add_score(STOMP_SCORE)
+	Audio.play_sfx("explosion")
 	collision_layer = 0
 	collision_mask = 0
 	hurtbox.set_deferred("monitoring", false)

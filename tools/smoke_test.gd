@@ -80,7 +80,7 @@ func _on_physics() -> void:
 			var msg := ""
 			if hud != null:
 				msg = hud.get_node("Message").text
-			_check("HUD 显示通关文字", msg.contains("通关"), "message=%s" % msg.replace("\n", " / "))
+			_check("HUD 显示通关文字", msg.contains("CLEAR"), "message=%s" % msg.replace("\n", " / "))
 		490:
 			print("\n===== 冒烟测试 =====")
 			var ok := 0

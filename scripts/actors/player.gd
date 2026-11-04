@@ -136,8 +136,10 @@ func _physics_process(delta: float) -> void:
 			roll_time = ROLL_TIME
 			roll_cd = ROLL_COOLDOWN
 			velocity.y = ROLL_JUMP_VELOCITY
+			Audio.play_sfx("jump")
 		else:
 			velocity.y = JUMP_VELOCITY
+		Audio.play_sfx("jump")
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
 	else:
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
@@ -199,6 +201,7 @@ func take_damage(from_x: float) -> void:
 	hurt_time = HURT_TIME
 	roll_time = 0.0
 	climbing = false
+	Audio.play_sfx("hurt")
 	var away := 1.0 if global_position.x >= from_x else -1.0
 	velocity.x = away * KNOCKBACK_X
 	velocity.y = KNOCKBACK_Y

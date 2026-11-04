@@ -76,6 +76,15 @@ knight/
 | 蘑菇 | `assets/sprites/mushroom/` | 16×16 | `mushroom_big_frames.tres` / `mushroom_cluster_frames.tres` | red / gold / purple / green（单张大蘑菇 / 大蘑菇+两个小蘑菇，同形状换色） |
 | 药瓶 | `assets/sprites/potion/` | 16×16 | `potion_frames.tres` | green / gold / blue / purple（同形状换色） |
 
+| 音频 | 目录 | 内容 |
+|---|---|---|---|
+| 背景音乐 | `assets/audio/music/` | `time_for_adventure.mp3`（40s，循环） |
+| 音效 | `assets/audio/sounds/` | 6 个 8bit 单声道 WAV：`jump` / `coin` / `power_up` / `hurt` / `explosion` / `tap` |
+
+| 字体 | 目录 | 内容 |
+|---|---|---|
+| 点阵字体 | `assets/fonts/` | Pixel Operator 8 常规 + 粗体（拉丁/数字全齐，无中文） |
+
 | 瓦片集 | 目录 | 内容 |
 |---|---|---|
 | 平台砖块 | `assets/tilesets/platforms/` | 原图集 `platforms.png` + 切出的 12 张 16×9 砖块（草地 / 泥土 / 黄金 / 冰块 × block / left / right） |
@@ -91,7 +100,9 @@ knight/
 [mushroom](assets/sprites/mushroom/README.md) ·
 [potion](assets/sprites/potion/README.md) ·
 [platforms](assets/tilesets/platforms/README.md) ·
-[world](assets/tilesets/world/README.md)
+[world](assets/tilesets/world/README.md) ·
+[audio](assets/audio/README.md) ·
+[fonts](assets/fonts/README.md)
 
 ## 怎么玩
 
@@ -113,6 +124,7 @@ knight/
 - 史莱姆可以踩死（+200）；被侧面撞到掉 1 点血
 - 血掉光就死，掉一条命、原地复活（吃过的金币和顶过的块都保留）；命掉光游戏结束
 - 走到最右边通关
+- 音效：跳跃 / 金币 / 拾取 / 受伤 / 踩怪 / 顶块 各有对应音效，背景音乐循环播放
 
 ## 代码结构
 
@@ -124,7 +136,7 @@ scenes/
   actors/Slime.tscn     史莱姆
   objects/Coin.tscn     金币
   objects/Pickup.tscn   蘑菇 / 药瓶 / 水果
-  ui/HUD.tscn           分数 / 金币 / 血 / 命
+  ui/HUD.tscn           分数 / 金币 / 血 / 命（点阵字体）
 
 scripts/
   main.gd               重开
@@ -135,13 +147,21 @@ scripts/
   levels/level.gd       读 json 铺砖、生成实体、撞块逻辑、通关判定
   ui/hud.gd             状态栏
   autoload/game.gd      全局状态（分数 / 命 / 血 / 金币）
+  autoload/audio.gd     音效池 + 背景音乐
   utils/tile_index.gd   砖名 <-> 图集坐标
   utils/level_bounds.gd 关卡像素边界
 
 assets/tilesets/world/
   world_tileset.tres    TileSet（4 个图集源：地形 / 道具 / 水 / 背景）
   atlases/              图集（由 tools/build_atlases.py 生成）
+
+assets/audio/           音乐 + 音效
+assets/fonts/           点阵字体
+assets/ui/pixel_theme.tres  HUD 主题（默认字体 = Pixel Operator 8）
 ```
+
+**游戏内文字是英文**：点阵字体 Pixel Operator 8 只有拉丁字形，没有中文。
+文档保持中文。
 
 物理层：1 = 地形，2 = 玩家，4 = 敌人，8 = 水 / 木梯感应。
 
@@ -164,6 +184,10 @@ Godot --headless --path . res://tools/SmokeTest.tscn
 ```
 
 会跑一遍站立 / 跑动 / 撞问号块 / 踩史莱姆 / 入水 / 爬梯 / 摔死扣命 / 原地复活 / 通关 / HUD 共 11 项检查。
+
+> 用 `--quit-after` 这类硬退出时，退出日志里会多出 2 条 MP3 播放对象的泄漏警告。
+> 那是 Godot 硬退出时音频线程来不及回收造成的，不影响运行。
+> 正常关窗口走 `Main` 的 `NOTIFICATION_WM_CLOSE_REQUEST`，会先停音乐再退，没有这条警告。
 
 ## 当前状态
 

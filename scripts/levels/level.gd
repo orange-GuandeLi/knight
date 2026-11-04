@@ -195,6 +195,7 @@ func _on_head_bump(world_pos: Vector2) -> void:
 func _bump(cell: Vector2i, key: String) -> void:
 	_put(terrain, cell, key + "_used")
 	Game.add_score(20)
+	Audio.play_sfx("tap")
 
 	var kind := "mushroom" if key.ends_with("_question") else "potion"
 	var p := PICKUP_SCENE.instantiate()
@@ -210,6 +211,7 @@ func _process(_delta: float) -> void:
 	if Game.finished or player == null or player.dead:
 		return
 	if player.global_position.x >= float((width - CLEAR_COL) * TILE):
+		Audio.play_sfx("power_up")
 		Game.clear_level()
 
 

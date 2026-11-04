@@ -52,6 +52,7 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if not body is Player:
 		return
+	Audio.play_sfx("power_up")
 	match kind:
 		"potion":
 			Game.add_health(1)

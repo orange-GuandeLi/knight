@@ -1,5 +1,5 @@
 {
- "width": 120,
+ "width": 240,
  "height": 48,
  "top_rows": 14,
  "spawn": [
@@ -7,40 +7,40 @@
   26
  ],
  "map": [
-  "........................................................................................................................",
-  "...............................................................................................5........................",
-  "........................................................................................................................",
-  "................................................1...........................................oooooo......................",
-  "...........................................................................................hpppppppp....................",
-  "..............................................ooooof.......................................h............................",
-  ".............................................Hrrrrrrr......................................h............................",
-  ".............................................H.............................................h...........................G",
-  ".....................1o.2....................H...................2.........................h.........................PGd",
-  "....................o..o..........P..........H.............P...............................h.........................Gdd",
-  ".....ooooP.........o....oP........Pooo.....P.H.............P..ooo...................P......h...............oo..P....Gddd",
-  "..Pn.P...P.P.......P...P.P......k.P.P.e..P.P.H.............PPe...ke.............PcPoPCP.n..h...k...........PE..P...Gdddd",
-  "GGGGGGGGGGGGGG....GGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxxGddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd"
+  "................................................................................................................................................................................................................................................",
+  "...............................................................................................5................................................................................................................................................",
+  "..............................................................................................................................................................................................................6................................G",
+  "................................................1...........................................oooooo............................................................................................................................................Gd",
+  "...........................................................................................hpppppppp........................................................................................................ooooo............................Gdd",
+  "..............................................ooooof.......................................h..................................ooofoo.......................................................................hpppppp..........................Gddd",
+  ".............................................Hrrrrrrr......................................h.................................Hrrrrrrr......................................................................h...............................Gdddd",
+  ".............................................H.............................................h.................................H.............................................................................h..............................Gddddd",
+  ".....................1o.2....................H...................2.........................h..........................3......H.......................................................7.....................h.............................Gdddddd",
+  "....................o..o..........P..........H.............P...............................h.................................H....P........................................................................h.P..........................Gddddddd",
+  ".....ooooP.........o....oP........Pooo.....P.H.............P..ooo...................P......h...............oo..P.............H....P....oo..............oo......P.......oooo........oo......................h.P.........oo......P.......Gdddddddd",
+  "..Pn.P...P.P.......P...P.P......k.P.P.e..P.P.H.............PPe...ke.............PcPoPCP.n..h...k...........PE..P............PH....P......e.P.E..k.....c..C..E..P.....PE....k.............E....P............h.P...........cP.E.kP......Gddddddddd",
+  "GGGGGGGGGGGGGG....GGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxx{++++++}GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGiiiiiiiiiiiiiiiisssssssssssssswwwwwwwwwwGGGGGGGGGGGGxxxxxxxxxxxxGGGGdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSdddddddddddddddddddddddddddddddddddddddddddddddd"
  ],
  "tiles": {
   "G": "grass_dirt",
@@ -139,6 +139,30 @@
     "y": 25,
     "kind": "moss",
     "bodies": 1
+   },
+   {
+    "x": 130,
+    "y": 25,
+    "kind": "green",
+    "bodies": 2
+   },
+   {
+    "x": 159,
+    "y": 25,
+    "kind": "moss",
+    "bodies": 1
+   },
+   {
+    "x": 205,
+    "y": 25,
+    "kind": "gold",
+    "bodies": 2
+   },
+   {
+    "x": 223,
+    "y": 25,
+    "kind": "green",
+    "bodies": 1
    }
   ],
   "grass": [
@@ -203,12 +227,37 @@
     "n": 1
    },
    {
-    "x": 117,
-    "y": 22,
+    "x": 124,
+    "y": 25,
+    "kind": "green",
+    "n": 1
+   },
+   {
+    "x": 139,
+    "y": 25,
+    "kind": "moss",
+    "n": 2
+   },
+   {
+    "x": 165,
+    "y": 25,
+    "kind": "green",
+    "n": 3
+   },
+   {
+    "x": 190,
+    "y": 25,
+    "kind": "moss",
+    "n": 1
+   },
+   {
+    "x": 218,
+    "y": 25,
     "kind": "green",
     "n": 2
    }
   ]
  },
- "time_limit": 120
+ "time_limit": 240,
+ "coin_goal": 30
 }

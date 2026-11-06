@@ -30,6 +30,10 @@ var spawn := Vector2i(4, 26)
 var respawn_pos := Vector2.ZERO
 ## 关卡限时（秒），0 = 不限时
 var time_limit := 0.0
+## 通关要收集多少金币
+var coin_goal := 0
+## 已经提示过「还差多少金币」，避免每帧重复发信号
+var _shown_short := -1
 var trees: Array = []
 var grass: Array = []
 
@@ -54,7 +58,7 @@ func _ready() -> void:
 	_paint_decor()
 	_spawn_entities()
 
-	Game.set_total_coins(_count_char("o"))
+	Game.set_coin_goal(coin_goal)
 
 	# 关卡限时。开了倒计时就把 HUD 上的计时器点亮。
 	Game.start_timer(time_limit)
@@ -80,6 +84,7 @@ func _load_data() -> void:
 	var sp: Array = d.get("spawn", [4, 26])
 	spawn = Vector2i(int(sp[0]), int(sp[1]))
 	time_limit = float(d.get("time_limit", 0))
+	coin_goal = int(d.get("coin_goal", 0))
 	var deco: Dictionary = d.get("decor", {})
 	trees = deco.get("trees", [])
 	grass = deco.get("grass", [])
@@ -328,9 +333,21 @@ func _on_time_up() -> void:
 func _process(_delta: float) -> void:
 	if Game.finished or player == null or player.dead:
 		return
-	if player.global_position.x >= float((width - CLEAR_COL) * TILE):
-		Audio.play_sfx("power_up")
-		Game.clear_level()
+	if player.global_position.x < float((width - CLEAR_COL) * TILE):
+		# 还没走到出口
+		if _shown_short != 0:
+			_shown_short = 0
+			Game.coin_goal_short.emit(0)
+		return
+	# 走到出口了。金币没收够就不算通关，提示还差多少
+	if Game.coins < Game.coin_goal:
+		var need := Game.coin_goal - Game.coins
+		if need != _shown_short:
+			_shown_short = need
+			Game.coin_goal_short.emit(need)
+		return
+	Audio.play_sfx("power_up")
+	Game.clear_level()
 
 
 func _on_player_died() -> void:

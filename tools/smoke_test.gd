@@ -238,14 +238,24 @@ func _on_physics() -> void:
 			_check("HUD 爱心随血量变化", full and e1 and e2, "血1 -> 实心/空心")
 			_check("HUD 命数显示", hud.lives_label.text == "x%d" % Game.lives,
 				"命文本 '%s'" % hud.lives_label.text)
-			_check("HUD 金币计数", hud.coins_label.text == "%d/%d" % [Game.coins, Game.total_coins],
+			_check("HUD 金币计数", hud.coins_label.text == "%d/%d" % [Game.coins, Game.coin_goal],
 				"金币文本 '%s'" % hud.coins_label.text)
 
-		# ---------- 通关 ----------
+		# ---------- 通关（要先收够金币）----------
 		810:
-			_teleport(1864, 384)
-		850:
-			_check("走到终点通关", Game.finished, "finished=%s" % Game.finished)
+			# 走到出口。金币不够的话不该通关
+			_teleport(float((level.width - 4) * 16 + 8), 300)
+		840:
+			_check("金币没收够不能通关", not Game.finished,
+				"finished=%s coins=%d/%d" % [Game.finished, Game.coins, Game.coin_goal])
+			_check("提示还差多少金币", hud.message.text.contains("NEED"),
+				"提示='%s'" % hud.message.text.replace("\n", " / "))
+		860:
+			# 模拟金币收够了
+			Game.coins = Game.coin_goal
+			Game.coins_changed.emit(Game.coins, Game.coin_goal)
+		880:
+			_check("金币收够就通关", Game.finished, "finished=%s" % Game.finished)
 			var msg := ""
 			if hud != null:
 				msg = hud.message.text

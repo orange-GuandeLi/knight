@@ -191,6 +191,9 @@ def make_data(trees, grass, conflicts, time_limit, spawn=None):
     lines = []
     for y in range(TOP_ROWS, HEIGHT):
         lines.append("".join(grid[y]))
+    # 收集目标：关卡里六成的金币。剩下的当加分，不强求全收集。
+    n_coins = sum(1 for row in lines for c in row if c == "o")
+    goal = max(1, n_coins * 3 // 5)
     return {
         "width": WIDTH,
         "height": HEIGHT,
@@ -204,14 +207,15 @@ def make_data(trees, grass, conflicts, time_limit, spawn=None):
             "grass": [{"x": x, "y": y, "kind": k, "n": n} for (x, y, k, n) in grass],
         },
         "time_limit": time_limit,
+        "coin_goal": goal,
     }, conflicts
 
 
 # ---------------------------------------------------------------- 第 1 关
 
 def build_level_01():
-    """草原。基础教学关：跑跳、翻滚、史莱姆、水池。"""
-    reset_grid()
+    """草原。基础教学关：跑跳、翻滚、史莱姆、水池。240 格（约 5 屏）。"""
+    reset_grid(240, 48)
 
     # 1. 起步区：平地 + 提示牌 + 几枚金币
     ground(0, 13)
@@ -245,7 +249,7 @@ def build_level_01():
     # 7. 坑 + 浅岩桥
     bridge(53, 58, SURFACE, "pale_rock")
 
-    # 8. 双史莱姆 + 感叹号块
+    # 8. 双史莱姆 + 感叹号块 + 检查点
     ground(59, 68)
     put(61, 25, "e")
     put(66, 25, "e")
@@ -278,9 +282,66 @@ def build_level_01():
     put(108, 25, "E")
     coins(107, 108, 24)
 
-    # 13. 终点爬坡
-    ground(114, 119)
-    for i, (x, y) in enumerate([(115, 25), (116, 24), (117, 23), (118, 22), (119, 21)]):
+    # ==== 下面是新加的一段，把关卡从 3 屏拉到 5 屏 ====
+
+    # 13. 浅岩桥 + 问号块
+    bridge(114, 121, SURFACE, "pale_rock")
+    put(118, 22, "3")
+
+    # 14. 梯子 + 高台 + 水果
+    ground(122, 133)
+    platform(125, 132, 20, "r")
+    ladder(125, 20, 25)
+    coins(126, 131, 19)
+    put(129, 19, "f")
+
+    # 15. 双史莱姆 + 检查点
+    ground(134, 147)
+    put(137, 25, "e")
+    put(141, 25, "E")
+    put(144, 25, "k")
+    coins(135, 136, 24)
+
+    # 16. 木箱阵 + 紫史莱姆
+    ground(148, 161)
+    put(150, 25, "c")
+    put(153, 25, "C")
+    put(156, 25, "E")
+    coins(151, 152, 24)
+
+    # 17. 冰面冲刺 + 检查点
+    ground(162, 177, surface="i", fill="I")
+    put(166, 25, "E")
+    put(171, 25, "k")
+    coins(167, 170, 24)
+
+    # 18. 雪面 + 问号块 + 紫史莱姆
+    ground(178, 191, surface="s", fill="S")
+    put(181, 22, "7")
+    put(185, 25, "E")
+    coins(179, 180, 24)
+
+    # 19. 水池
+    pool(192, 201)
+
+    # 20. 高台 + 紫岩 + 感叹号块
+    ground(202, 213)
+    platform(203, 209, 19, "p")
+    ladder(203, 19, 25, "purple_rock")
+    coins(204, 208, 18)
+    put(206, 16, "6")
+
+    # 21. 裂纹地面 + 木箱 + 紫史莱姆
+    ground(214, 225, surface="x", fill="d")
+    put(217, 25, "c")
+    put(220, 25, "E")
+    put(222, 25, "k")
+    coins(215, 216, 24)
+
+    # 22. 终点爬坡
+    ground(226, 239)
+    for (x, y) in [(230, 25), (231, 24), (232, 23), (233, 22), (234, 21),
+                   (235, 20), (236, 19), (237, 18), (238, 17), (239, 16)]:
         put(x, y, "G")
         for yy in range(y + 1, HEIGHT):
             put(x, yy, "d")
@@ -295,6 +356,10 @@ def build_level_01():
         (111, 25, "gold", 1),
         (59, 25, "moss", 2),
         (84, 25, "moss", 1),
+        (130, 25, "green", 2),
+        (159, 25, "moss", 1),
+        (205, 25, "gold", 2),
+        (223, 25, "green", 1),
     ]
     grass = [
         (2, 25, "green", 1),
@@ -307,19 +372,23 @@ def build_level_01():
         (80, 25, "moss", 2),
         (82, 25, "moss", 3),
         (107, 25, "moss", 1),
-        (117, 22, "green", 2),
+        (124, 25, "green", 1),
+        (139, 25, "moss", 2),
+        (165, 25, "green", 3),
+        (190, 25, "moss", 1),
+        (218, 25, "green", 2),
     ]
 
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 120)
+    data, conflicts = make_data(trees, grass, conflicts, 240)
     return data, conflicts
 
 
 # ---------------------------------------------------------------- 第 2 关
 
 def build_level_02():
-    """冰原。冰面冲刺 + 紫史莱姆 + 木箱阵。"""
-    reset_grid()
+    """冰原。冰面冲刺 + 紫史莱姆 + 木箱阵。230 格（约 5 屏）。"""
+    reset_grid(230, 48)
 
     # 1. 起步区
     ground(0, 10)
@@ -382,9 +451,67 @@ def build_level_02():
     put(110, 25, "k")
     coins(106, 109, 24)
 
-    # 12. 终点爬坡
-    ground(113, 119)
-    for (x, y) in [(114, 25), (115, 24), (116, 23), (117, 22), (118, 21), (119, 20)]:
+    # ==== 下面是新加的一段 ====
+
+    # 12. 浅岩桥 + 问号块
+    bridge(113, 120, SURFACE, "pale_rock")
+    put(117, 22, "3")
+
+    # 13. 梯子 + 高台 + 感叹号块
+    ground(121, 132)
+    platform(124, 131, 20, "r")
+    ladder(124, 20, 25)
+    coins(125, 130, 19)
+    put(127, 17, "4")
+
+    # 14. 双史莱姆 + 紫史莱姆
+    ground(133, 146)
+    put(136, 25, "e")
+    put(140, 25, "E")
+    put(143, 25, "k")
+    coins(134, 135, 24)
+
+    # 15. 冰面 + 木箱
+    ground(147, 160, surface="i", fill="I")
+    put(150, 25, "c")
+    put(154, 25, "E")
+    coins(151, 153, 24)
+
+    # 16. 水池
+    pool(161, 170)
+
+    # 17. 高台 + 紫岩 + 水果
+    ground(171, 182)
+    platform(172, 178, 19, "p")
+    ladder(172, 19, 25, "purple_rock")
+    coins(173, 177, 18)
+    put(175, 17, "f")
+
+    # 18. 雪面 + 问号块
+    ground(183, 194, surface="s", fill="S")
+    put(186, 22, "7")
+    put(190, 25, "E")
+    put(192, 25, "k")
+    coins(184, 185, 24)
+
+    # 19. 墙跳竖井（可选路线）
+    ground(195, 208)
+    wall(196, 18, 25, "d")
+    wall(200, 20, 25, "d")
+    platform(197, 199, 18, "r")
+    coins(197, 199, 17)
+    put(195, 25, "k")
+
+    # 20. 裂纹地面 + 木箱阵
+    ground(209, 218, surface="x", fill="d")
+    put(211, 25, "c")
+    put(214, 25, "C")
+    put(216, 25, "E")
+
+    # 21. 终点爬坡
+    ground(219, 229)
+    for (x, y) in [(222, 25), (223, 24), (224, 23), (225, 22), (226, 21),
+                   (227, 20), (228, 19), (229, 18)]:
         put(x, y, "G")
         for yy in range(y + 1, HEIGHT):
             put(x, yy, "d")
@@ -397,7 +524,11 @@ def build_level_02():
         (80, 25, "green", 0),
         (90, 25, "moss", 2),
         (104, 25, "green", 1),
-        (113, 25, "gold", 2),
+        (122, 25, "gold", 2),
+        (137, 25, "green", 1),
+        (157, 25, "moss", 1),
+        (176, 25, "green", 2),
+        (205, 25, "gold", 1),
     ]
     grass = [
         (1, 25, "green", 1),
@@ -408,18 +539,22 @@ def build_level_02():
         (79, 25, "green", 2),
         (100, 25, "moss", 3),
         (111, 25, "green", 1),
+        (125, 25, "moss", 2),
+        (148, 25, "green", 1),
+        (185, 25, "moss", 3),
+        (212, 25, "green", 2),
     ]
 
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 150)
+    data, conflicts = make_data(trees, grass, conflicts, 280)
     return data, conflicts
 
 
 # ---------------------------------------------------------------- 第 3 关
 
 def build_level_03():
-    """深塔。墙跳竖井 + 高低错落的平台。"""
-    reset_grid()
+    """深塔。墙跳竖井 + 高低错落的平台。230 格（约 5 屏）。"""
+    reset_grid(230, 48)
 
     # 1. 起步
     ground(0, 9)
@@ -469,7 +604,7 @@ def build_level_03():
     coins(67, 71, 21)
     put(69, 19, "6")
 
-    # 8. 水池 + 冰面
+    # 8. 水池 + 雪面
     pool(75, 83)
     ground(84, 96, surface="s", fill="S")
     put(88, 25, "E")
@@ -482,14 +617,72 @@ def build_level_03():
     coins(99, 103, 18)
     put(101, 16, "7")
 
-    # 10. 终点
-    ground(106, 119)
-    for (x, y) in [(110, 25), (111, 24), (112, 23), (113, 22), (114, 21),
-                   (115, 20), (116, 19), (117, 18), (118, 17), (119, 16)]:
+    # ==== 下面是新加的一段 ====
+
+    # 10. 浅岩桥 + 问号块
+    bridge(106, 113, SURFACE, "pale_rock")
+    put(110, 22, "4")
+
+    # 11. 三层错开的平台，全靠二段跳和翻滚
+    ground(114, 128)
+    platform(116, 121, 21, "r")
+    platform(123, 128, 17, "p")
+    coins(117, 120, 20)
+    coins(124, 127, 16)
+    put(119, 18, "2")
+
+    # 12. 冰面 + 紫史莱姆 + 检查点
+    ground(129, 142, surface="i", fill="I")
+    put(133, 25, "E")
+    put(137, 25, "k")
+    coins(130, 132, 24)
+
+    # 13. 木箱阵
+    ground(143, 156)
+    put(145, 25, "c")
+    put(148, 25, "c")
+    put(151, 25, "C")
+    put(154, 25, "E")
+    coins(146, 147, 24)
+
+    # 14. 梯子 + 高台 + 水果
+    ground(157, 168)
+    platform(160, 167, 20, "r")
+    ladder(160, 20, 25)
+    coins(161, 166, 19)
+    put(164, 19, "f")
+
+    # 15. 水池
+    pool(169, 178)
+
+    # 16. 雪面 + 感叹号块
+    ground(179, 190, surface="s", fill="S")
+    put(182, 22, "8")
+    put(186, 25, "E")
+    put(188, 25, "k")
+    coins(180, 181, 24)
+
+    # 17. 墙跳竖井（第二个）
+    ground(191, 204)
+    wall(192, 18, 25, "d")
+    wall(196, 20, 25, "d")
+    platform(193, 195, 18, "r")
+    coins(193, 195, 17)
+    put(191, 25, "k")
+
+    # 18. 裂纹地面 + 紫岩高台
+    ground(205, 216, surface="x", fill="d")
+    platform(206, 212, 20, "p")
+    coins(207, 211, 19)
+    put(214, 25, "E")
+
+    # 19. 终点爬坡
+    ground(217, 229)
+    for (x, y) in [(220, 25), (221, 24), (222, 23), (223, 22), (224, 21),
+                   (225, 20), (226, 19), (227, 18), (228, 17), (229, 16)]:
         put(x, y, "G")
         for yy in range(y + 1, HEIGHT):
             put(x, yy, "d")
-    put(108, 25, "k")
 
     trees = [
         (8, 25, "green", 1),
@@ -497,7 +690,11 @@ def build_level_03():
         (44, 25, "moss", 1),
         (56, 25, "green", 2),
         (95, 25, "green", 0),
-        (107, 25, "gold", 1),
+        (115, 25, "gold", 1),
+        (139, 25, "moss", 1),
+        (158, 25, "green", 1),
+        (184, 25, "gold", 1),
+        (209, 25, "moss", 1),
     ]
     grass = [
         (2, 25, "green", 2),
@@ -507,10 +704,14 @@ def build_level_03():
         (70, 25, "green", 1),
         (86, 25, "moss", 3),
         (104, 25, "green", 2),
+        (128, 25, "moss", 1),
+        (150, 25, "green", 3),
+        (176, 25, "moss", 2),
+        (207, 25, "green", 1),
     ]
 
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 180)
+    data, conflicts = make_data(trees, grass, conflicts, 300)
     return data, conflicts
 
 

@@ -23,6 +23,9 @@ const DANGER_TIME := 10.0
 @onready var message_panel: PanelContainer = $MessagePanel
 @onready var message: Label = $MessagePanel/Message
 
+## 当前显示的是不是「还差多少金币」那句提示
+var _short_msg := false
+
 
 func _ready() -> void:
 	Game.score_changed.connect(_on_changed)
@@ -31,6 +34,7 @@ func _ready() -> void:
 	Game.lives_changed.connect(_on_changed)
 	Game.combo_changed.connect(_on_changed)
 	Game.time_changed.connect(_on_time)
+	Game.coin_goal_short.connect(_on_coin_goal_short)
 	Game.game_over.connect(_on_game_over)
 	Game.level_cleared.connect(_on_cleared)
 	Game.all_levels_cleared.connect(_on_all_cleared)
@@ -57,7 +61,7 @@ func _on_time(_t: float) -> void:
 
 
 func _refresh() -> void:
-	coins_label.text = "%d/%d" % [Game.coins, Game.total_coins]
+	coins_label.text = "%d/%d" % [Game.coins, Game.coin_goal]
 	score_label.text = str(Game.score)
 	lives_label.text = "x%d" % Game.lives
 
@@ -87,10 +91,20 @@ func _format_time(seconds: float) -> String:
 	return "%d:%02d" % [t / 60, t % 60]
 
 
+## 到出口但金币没收够：提示还差多少
+func _on_coin_goal_short(needed: int) -> void:
+	if needed > 0:
+		_set_message("NEED %d MORE COINS\nGRAB THEM AND COME BACK" % needed)
+	elif _short_msg:
+		_short_msg = false
+		_set_message("")
+
+
 ## 中间提示。有字才显示面板，空的时候整个面板藏掉。
 func _set_message(text: String) -> void:
 	message.text = text
 	message_panel.visible = text != ""
+	_short_msg = text.begins_with("NEED ")
 
 
 func _on_game_over() -> void:

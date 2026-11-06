@@ -4,10 +4,12 @@ extends Node
 signal score_changed(score: int)
 signal lives_changed(lives: int)
 signal health_changed(health: int)
-signal coins_changed(coins: int, total: int)
+signal coins_changed(coins: int, goal: int)
 signal combo_changed(combo: int)
 signal time_changed(time_left: float)
 signal time_up()
+## 到了出口但金币没收够。参数是还差多少；0 表示已经离开出口区域
+signal coin_goal_short(needed: int)
 signal game_over()
 signal level_cleared()
 signal all_levels_cleared()
@@ -31,7 +33,7 @@ var score := 0
 var lives := START_LIVES
 var health := MAX_HEALTH
 var coins := 0
-var total_coins := 0
+var coin_goal := 0            # 通关要收集多少金币
 var combo := 0
 var combo_timer := 0.0
 var time_left := 0.0           # 0 = 不限时
@@ -73,7 +75,7 @@ func reset() -> void:
 	lives = START_LIVES
 	health = MAX_HEALTH
 	coins = 0
-	total_coins = 0
+	coin_goal = 0
 	combo = 0
 	combo_timer = 0.0
 	time_left = 0.0
@@ -88,7 +90,7 @@ func reset() -> void:
 	score_changed.emit(score)
 	lives_changed.emit(lives)
 	health_changed.emit(health)
-	coins_changed.emit(coins, total_coins)
+	coins_changed.emit(coins, coin_goal)
 	combo_changed.emit(combo)
 	time_changed.emit(time_left)
 	level_started.emit()
@@ -99,7 +101,7 @@ func reset_for_next_level() -> void:
 	lives = START_LIVES
 	health = MAX_HEALTH
 	coins = 0
-	total_coins = 0
+	coin_goal = 0
 	combo = 0
 	combo_timer = 0.0
 	time_left = 0.0
@@ -108,7 +110,7 @@ func reset_for_next_level() -> void:
 	cleared = false
 	lives_changed.emit(lives)
 	health_changed.emit(health)
-	coins_changed.emit(coins, total_coins)
+	coins_changed.emit(coins, coin_goal)
 	combo_changed.emit(combo)
 	time_changed.emit(time_left)
 	level_started.emit()
@@ -168,7 +170,7 @@ func break_combo() -> void:
 func add_coin() -> void:
 	coins += 1
 	score_with_combo(100)
-	coins_changed.emit(coins, total_coins)
+	coins_changed.emit(coins, coin_goal)
 
 
 ## 直接设定血量。血量只能从这里改，改完自动裁剪范围并广播。
@@ -183,10 +185,10 @@ func set_lives(v: int) -> void:
 	lives_changed.emit(lives)
 
 
-## 关卡加载完才知道一共有多少金币。
-func set_total_coins(n: int) -> void:
-	total_coins = n
-	coins_changed.emit(coins, total_coins)
+## 关卡加载完才知道要收多少金币。
+func set_coin_goal(n: int) -> void:
+	coin_goal = n
+	coins_changed.emit(coins, coin_goal)
 
 
 ## 开一个倒计时（秒）。0 = 不限时。

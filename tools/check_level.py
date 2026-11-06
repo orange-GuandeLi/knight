@@ -29,6 +29,10 @@ SOLID = set("GdrpxcC[]=]{}()*+12345678iIsS")
 LADDER = set("Hh")
 # 实体（不算地面）
 ENTITY = set("oekE")
+# 桥（悬空的）
+BRIDGE = set("[=]{}+}()*")
+# 水
+WATER = set("wv")
 
 
 def load(path):
@@ -160,6 +164,34 @@ def check(path):
         for x, c in enumerate(row):
             if c in "eEk" and not is_solid(d, x, y + 1):
                 problems.append("实体 '%s' 在 (%d,%d) 下面没有地面" % (c, x, y))
+
+    # --- 桥的规矩：上面不���植物，水面也不直接怼着桥 ---
+    bridge_cells = set()
+    for x in range(W):
+        for y in range(d["top_rows"], H):
+            if cell(d, x, y) in BRIDGE:
+                bridge_cells.add((x, y))
+
+    for it in d["decor"]["trees"]:
+        x = int(it["x"])
+        y = int(it["y"])
+        bodies = int(it["bodies"])
+        cells = [(x, y)] + [(x, y - 1 - i) for i in range(bodies)]
+        for (cx, cy) in cells:
+            if (cx, cy + 1) in bridge_cells:
+                problems.append("树 (%d,%d) 悬在桥上" % (cx, cy))
+    for it in d["decor"]["grass"]:
+        x = int(it["x"])
+        y = int(it["y"])
+        if (x, y + 1) in bridge_cells:
+            problems.append("草 (%d,%d) 悬在桥上" % (x, y))
+
+    for x in range(W):
+        for y in range(d["top_rows"], H):
+            if cell(d, x, y) in WATER:
+                for nb in (x - 1, x + 1):
+                    if (nb, y) in bridge_cells:
+                        problems.append("水面 (%d,%d) 直接挨着桥 (%d,%d)" % (x, y, nb, y))
 
     # 统计
     n = {c: sum(1 for row in d["map"] for ch in row if ch == c) for c in "oekE"}

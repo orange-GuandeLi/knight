@@ -17,8 +17,8 @@
   ".............................................H.............................................h...........................G",
   ".....................1o.2....................H...................2.........................h.........................PGd",
   "....................o..o..........P..........H.............P...............................h.........................Gdd",
-  ".....ooooP.........o....o.....P...Pooo.....P.H.............P..ooo...................P......h...............oo..P....Gddd",
-  "..Pn.P...P.P.......P...P......P.k.P.P.e..P.P.H.............PPe...ke.............PcPoPCP.n..h...k...........PE..P...Gdddd",
+  ".....ooooP.........o....oP........Pooo.....P.H.............P..ooo...................P......h...............oo..P....Gddd",
+  "..Pn.P...P.P.......P...P.P......k.P.P.e..P.P.H.............PPe...ke.............PcPoPCP.n..h...k...........PE..P...Gdddd",
   "GGGGGGGGGGGGGG....GGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxxGddddd",
   "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
   "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
@@ -116,7 +116,7 @@
     "bodies": 0
    },
    {
-    "x": 30,
+    "x": 25,
     "y": 25,
     "kind": "gold",
     "bodies": 1

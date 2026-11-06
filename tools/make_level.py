@@ -59,6 +59,9 @@ ENTITIES = {
     "k": "checkpoint",
 }
 
+# 三种桥用到的字符（桥是悬空的，上面不该长植物）
+BRIDGE_CHARS = set("[=]{}+}()*")
+
 
 # ---------------------------------------------------------------- 画图工具
 
@@ -161,9 +164,16 @@ def place_decor(trees, grass):
                 if grid[cy][cx] != ".":
                     conflicts.append("树 %s@x%d (x%d,y%d) 撞到 '%s'"
                                      % (kind, x, cx, cy, grid[cy][cx]))
+        # 脚下是桥的话，植物就悬在桥上了，不对
+        if y + 1 < HEIGHT and grid[y + 1][x] in BRIDGE_CHARS:
+            conflicts.append("树 %s@x%d 站在桥上（脚下是 '%s'）"
+                             % (kind, x, grid[y + 1][x]))
     for (x, y, kind, n) in grass:
         if 0 <= x < WIDTH and 0 <= y < HEIGHT and grid[y][x] != ".":
             conflicts.append("草 %s@x%d (x%d,y%d) 撞到 '%s'" % (kind, x, x, y, grid[y][x]))
+        if y + 1 < HEIGHT and grid[y + 1][x] in BRIDGE_CHARS:
+            conflicts.append("草 %s@x%d 站在桥上（脚下是 '%s'）"
+                             % (kind, x, grid[y + 1][x]))
 
     # 占位，防止植物互相重叠
     for (x, y, kind, bodies) in trees:
@@ -279,7 +289,7 @@ def build_level_01():
         (34, 25, "green", 2),
         (43, 25, "green", 1),
         (86, 25, "green", 0),
-        (30, 25, "gold", 1),
+        (25, 25, "gold", 1),     # 原来放在 x=30，那儿是桥，植物不长在桥上
         (111, 25, "gold", 1),
         (59, 25, "moss", 2),
         (84, 25, "moss", 1),
@@ -340,13 +350,16 @@ def build_level_02():
     put(57, 25, "E")
     coins(58, 59, 24)
 
-    # 6. 坑 + 冰桥
-    bridge(61, 67, SURFACE, "pale_rock")
+    # 6. 坑 + 浅岩桥
+    bridge(61, 65, SURFACE, "pale_rock")
 
-    # 7. 水池
-    pool(68, 76)
+    # 7. 桥和水之间垫一段地面：水面不直接怼着桥
+    ground(66, 69)
 
-    # 8. 高台 + 梯子 + 紫岩
+    # 8. 水池
+    pool(70, 76)
+
+    # 9. 高台 + 梯子 + 紫岩
     platform(77, 88, 18, "p")
     ladder(78, 18, 25, "purple_rock")
     coins(79, 86, 17)
@@ -354,19 +367,19 @@ def build_level_02():
     ground(77, 88)
     put(85, 25, "k")
 
-    # 9. 冰面冲刺 + 紫史莱姆群
+    # 10. 冰面冲刺 + 紫史莱姆群
     ground(89, 101, surface="i", fill="I")
     put(92, 25, "E")
     put(96, 25, "E")
     coins(93, 95, 24)
 
-    # 10. 雪面收尾
+    # 11. 雪面收尾
     ground(102, 112, surface="s", fill="S")
     put(105, 25, "E")
     put(110, 25, "k")
     coins(106, 109, 24)
 
-    # 11. 终点爬坡
+    # 12. 终点爬坡
     ground(113, 119)
     for (x, y) in [(114, 25), (115, 24), (116, 23), (117, 22), (118, 21), (119, 20)]:
         put(x, y, "G")

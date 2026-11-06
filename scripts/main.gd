@@ -24,11 +24,11 @@ func _ready() -> void:
 	# 自己接管退出：先停音乐再退。
 	# 不然循环播放的 MP3 会在退出日志里报 2 个对象泄漏。
 	get_tree().auto_accept_quit = false
-	_load_level()
+	load_level()
 
 
 ## 载入当前关卡。关卡节点统一叫 "Level"，方便外部按名字找。
-func _load_level() -> void:
+func load_level() -> void:
 	if level != null:
 		# 先从树上摘掉再排队释放，不然旧关卡这一帧还会 _process，
 		# 可能在新关卡就绪之前误判通关。
@@ -71,14 +71,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		if Game.all_cleared or (Game.finished and not Game.cleared):
 			Game.level_index = 0
 		Game.reset()
-		_load_level()
+		load_level()
 	elif event.is_action_pressed("next_level"):
 		# 通关后按 Enter / 空格进下一关
 		if Game.cleared and not Game.all_cleared:
 			get_viewport().set_input_as_handled()
 			if Game.next_level():
 				Game.reset_for_next_level()
-				_load_level()
+				load_level()
 	elif event.is_action_pressed("toggle_fullscreen"):
 		get_viewport().set_input_as_handled()
 		var fs := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN

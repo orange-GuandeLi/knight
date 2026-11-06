@@ -31,6 +31,7 @@ var combo := 0
 var combo_timer := 0.0
 var time_left := 0.0           # 0 = 不限时
 var finished := false          # 本局结束了（通关或失败）
+var over := false              # 彻底结束（失败），不能再复活
 var cleared := false           # 当前这关通关了
 var all_cleared := false       # 全部关卡都过了
 var level_index := 0           # 当前关卡序号（0 起）
@@ -62,6 +63,7 @@ func reset() -> void:
 	combo_timer = 0.0
 	time_left = 0.0
 	finished = false
+	over = false
 	cleared = false
 	all_cleared = false
 	# 重置也走信号，订阅方（HUD）不用自己去拉状态
@@ -82,6 +84,7 @@ func reset_for_next_level() -> void:
 	combo_timer = 0.0
 	time_left = 0.0
 	finished = false
+	over = false
 	cleared = false
 	health_changed.emit(health)
 	coins_changed.emit(coins, total_coins)
@@ -118,6 +121,13 @@ func bump_combo() -> int:
 	combo_timer = COMBO_WINDOW
 	combo_changed.emit(combo)
 	return combo
+
+
+## 打断连击。
+func break_combo() -> void:
+	if combo > 0:
+		combo = 0
+		combo_changed.emit(combo)
 
 
 func add_coin() -> void:
@@ -164,6 +174,7 @@ func lose_life() -> void:
 	lives_changed.emit(lives)
 	if lives <= 0 and not finished:
 		finished = true
+		over = true
 		game_over.emit()
 
 
@@ -180,4 +191,5 @@ func fail() -> void:
 	if finished:
 		return
 	finished = true
+	over = true
 	game_over.emit()

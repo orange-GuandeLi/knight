@@ -303,7 +303,9 @@ func _process(_delta: float) -> void:
 
 func _on_player_died() -> void:
 	Game.lose_life()
-	if Game.finished:
+	# 只有彻底结束（命掉光 / 超时）才不复活。
+	# 关卡已经通关的话还是要能复活，不然通关后掉坑就卡死了。
+	if Game.over:
 		return
 	await get_tree().create_timer(0.35).timeout
 	_respawn()

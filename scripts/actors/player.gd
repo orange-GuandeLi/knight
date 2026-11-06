@@ -206,6 +206,9 @@ func _physics_process(delta: float) -> void:
 	elif momentum > 0.0:
 		# 翻滚跳之后的惯性：速度先保持住，不急着往常态速拉
 		pass
+	elif wall_lock > 0.0:
+		# 蹬墙后的短暂锁向：不然还按着朝墙的方向，立刻就被拽回墙边
+		pass
 	elif absf(dir) > 0.01:
 		var target := dir * (WATER_SPEED if in_water else SPEED)
 		var accel := ICE_ACCEL if on_ice else ACCEL

@@ -9,6 +9,7 @@ var tick := 0
 var p: Player
 var terrain: TileMapLayer
 var entities: Node2D
+var level: Node2D
 var hud: Node
 var results: Array[String] = []
 
@@ -20,6 +21,9 @@ var h_long := 0.0
 var h_double := 0.0
 var slimes_before := 0
 var climb_y := 0.0
+var ice_vx := 0.0
+var wall_vx := 0.0
+var cp_x := 0.0
 
 const GROUND_Y := 416.0
 
@@ -30,13 +34,19 @@ func _ready() -> void:
 	get_tree().physics_frame.connect(_on_physics)
 
 
+## 换关之后要把节点引用重新拿一遍（旧关卡已经释放了）
+func _refresh_nodes() -> void:
+	level = main.get_node("Level")
+	p = level.get_node("Player")
+	terrain = level.get_node("Terrain")
+	entities = level.get_node("Entities")
+	hud = main.get_node_or_null("HUD")
+
+
 func _on_physics() -> void:
 	tick += 1
 	if p == null:
-		p = main.get_node("Level/Player")
-		terrain = main.get_node("Level/Terrain")
-		entities = main.get_node("Level/Entities")
-		hud = main.get_node_or_null("HUD")
+		_refresh_nodes()
 
 	if track:
 		peak_y = minf(peak_y, p.global_position.y)
@@ -176,7 +186,122 @@ func _on_physics() -> void:
 				msg = hud.get_node("Message").text
 			_check("HUD 显示通关文字", msg.contains("CLEAR"), "message=%s" % msg.replace("\n", " / "))
 
-		870:
+		# ---------- 地面翻滚冲刺 ----------
+		880:
+			_teleport(20 * 16 + 8, GROUND_Y)
+			Input.action_press("move_right")
+		886:
+			Input.action_release("move_right")
+			Input.action_press("down")
+		900:
+			_check("地面翻滚冲刺", p.rolling and p.velocity.x > 150.0,
+				"rolling=%s vx=%.1f" % [p.rolling, p.velocity.x])
+		903:
+			Input.action_release("down")
+
+		# ---------- 翻滚撞碎木箱 ----------
+		# 949 才开始：翻滚有 0.55 秒冷却，得等上一轮结束
+		950:
+			_teleport(81 * 16 - 8, GROUND_Y)
+			Input.action_press("move_right")
+		956:
+			Input.action_release("move_right")
+			Input.action_press("down")
+		980:
+			Input.action_release("down")
+			_check("翻滚撞碎木箱", _key_at(Vector2i(81, 25)) == "",
+				"砖='%s'（应为已碎）" % _key_at(Vector2i(81, 25)))
+
+		# ---------- 冰面 ----------
+		990:
+			_teleport(107 * 16 + 8, GROUND_Y)
+		1000:
+			_check("识别到冰面", p.on_ice, "on_ice=%s" % p.on_ice)
+			Input.action_press("move_right")
+		1020:
+			Input.action_release("move_right")
+			ice_vx = p.velocity.x
+		1030:
+			# 冰上松手还是往前滑，普通地面早就停住了
+			_check("冰面打滑不刹车", p.velocity.x > 30.0 and p.velocity.x <= ice_vx,
+				"松手后 vx=%.1f（滑行前 %.1f）" % [p.velocity.x, ice_vx])
+
+		# ---------- 连击 ----------
+		1035:
+			Game.break_combo()                   # 从干净状态开始数
+		1040:
+			# 挑两枚之前没被碰过的金币（83,25 那枚在砸箱子时就被顺路吃了）
+			_teleport(6 * 16 + 8, 24 * 16 + 8)
+		1060:
+			_teleport(19 * 16 + 8, 24 * 16 + 8)
+		1080:
+			_check("连击累计倍率", Game.combo == 2,
+				"combo=%d 倍率=%d" % [Game.combo, maxi(1, Game.combo)])
+
+		# ---------- 检查点 ----------
+		1090:
+			_teleport(65 * 16 + 8, GROUND_Y)     # 走到检查点木牌上
+		1110:
+			cp_x = level.respawn_pos.x
+			_check("碰到检查点就激活", absf(cp_x - (65 * 16 + 8)) < 2.0,
+				"复活点 x=%.0f（应为 %d）" % [cp_x, 65 * 16 + 8])
+
+		# ---------- 从检查点复活 ----------
+		1120:
+			_teleport(15 * 16 + 8, 920)           # 再摔一次
+		1255:
+			_check("从检查点复活", (not p.dead) and absf(p.global_position.x - cp_x) < 8.0,
+				"pos=(%.0f,%.0f)（检查点 x=%.0f）" % [p.global_position.x, p.global_position.y, cp_x])
+
+		# ---------- 倒计时 ----------
+		1265:
+			_check("关卡有倒计时", Game.time_left > 0.0, "剩 %.0f 秒" % Game.time_left)
+			_check("HUD 显示倒计时", hud.time_label.visible and hud.time_label.text.contains(":"),
+				"时间文本 '%s'" % hud.time_label.text)
+
+		# ---------- 通关后进下一关 ----------
+		1275:
+			# Input.action_press 不会产生事件，得走正常输入管线
+			var ev := InputEventKey.new()
+			ev.physical_keycode = KEY_ENTER
+			ev.pressed = true
+			Input.parse_input_event(ev)
+		1295:
+			_refresh_nodes()
+			_check("通关后进下一关", Game.level_index == 1,
+				"level_index=%d" % Game.level_index)
+			_check("第 2 关已载入", level.data_path.ends_with("level02.json"),
+				"数据=%s" % level.data_path)
+
+		# ---------- 墙跳（第 3 关的竖井）----------
+		1300:
+			Game.level_index = 2
+			main.load_level()
+			_refresh_nodes()
+			_teleport(61 * 16 + 2, GROUND_Y)     # 贴着左墙站
+			Input.action_press("move_left")
+		1310:
+			Input.action_press("jump")
+		1330:
+			Input.action_release("jump")
+			_check("贴墙下滑", p.wall_dir == -1 and p.velocity.y <= 60.0,
+				"wall_dir=%d vy=%.1f" % [p.wall_dir, p.velocity.y])
+		1340:
+			Input.action_press("jump")           # 蹬墙跳
+			wall_vx = 0.0
+		1345:
+			wall_vx = maxf(wall_vx, p.velocity.x)
+		1350:
+			wall_vx = maxf(wall_vx, p.velocity.x)
+		1355:
+			Input.action_release("jump")
+			# 蹬墙后有 0.14 秒锁向，之后松手会被减速，所以取最高速
+			_check("墙跳蹬出去", wall_vx > 100.0,
+				"蹬墙后最高 vx=%.1f" % wall_vx)
+		1360:
+			Input.action_release("move_left")
+
+		1400:
 			print("\n===== 冒烟测试 =====")
 			var ok := 0
 			for r in results:
@@ -205,7 +330,7 @@ func _check(name: String, ok: bool, detail: String) -> void:
 func _key_at(cell: Vector2i) -> String:
 	var src := terrain.get_cell_source_id(cell)
 	if src < 0:
-		return "(空)"
+		return ""
 	return TileIndex.key_at(src, terrain.get_cell_atlas_coords(cell))
 
 

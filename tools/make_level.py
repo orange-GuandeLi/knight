@@ -155,6 +155,18 @@ def clear_sky():
 
 # ---------------------------------------------------------------- 植物装饰
 
+def fill_pits_with_water():
+    """没地面的列就是悬崖，灌上水：掉下去是淹死，不是掉进虚空。
+
+    判据是 SURFACE 行有没有砖——桥、平台那些行不在这一行，不受影响。
+    """
+    for x in range(WIDTH):
+        if grid[SURFACE][x] != ".":
+            continue
+        for y in range(SURFACE, HEIGHT):
+            put(x, y, "w" if y == SURFACE else "v")
+
+
 def place_decor(trees, grass):
     """把树和草画进图里（占位符 P），顺便检查有没有撞到别的东西。"""
     conflicts = []
@@ -379,6 +391,7 @@ def build_level_01():
         (218, 25, "green", 2),
     ]
 
+    fill_pits_with_water()
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 240)
     return data, conflicts
@@ -545,6 +558,7 @@ def build_level_02():
         (212, 25, "green", 2),
     ]
 
+    fill_pits_with_water()
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 280)
     return data, conflicts
@@ -710,6 +724,7 @@ def build_level_03():
         (207, 25, "green", 1),
     ]
 
+    fill_pits_with_water()
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 300)
     return data, conflicts

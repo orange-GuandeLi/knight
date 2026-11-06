@@ -200,12 +200,6 @@ func _on_physics() -> void:
 			_check("踩死史莱姆", _count_slimes() < slimes_before,
 				"剩 %d 只（原 %d）" % [_count_slimes(), slimes_before])
 
-		# ---------- 入水 ----------
-		530:
-			_teleport(73 * 16 + 8, 430)
-		565:
-			_check("人物入水", p.in_water, "in_water=%s" % p.in_water)
-
 		# ---------- 爬梯 ----------
 		575:
 			_teleport(45 * 16 + 8, GROUND_Y)
@@ -467,7 +461,16 @@ func _on_physics() -> void:
 		1610:
 			Input.action_release("move_left")
 
-		1640:
+		# ---------- 入水 = 淹死 ----------
+		# 放在最后：淹死会打断后面所有测试（角色在死亡动画里动不了）
+		1620:
+			Game.set_lives(3)
+			_teleport(172 * 16 + 8, 430)     # 直接丢进第 3 关的水塘
+		1650:
+			_check("掉进水里会淹死", p.dead,
+				"dead=%s in_water=%s" % [p.dead, p.in_water])
+
+		1680:
 			_seq_done = true
 
 

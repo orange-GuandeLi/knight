@@ -30,11 +30,6 @@ const MAX_FALL := 340.0
 const COYOTE_TIME := 0.10
 const JUMP_BUFFER := 0.12
 
-const WATER_GRAVITY := 150.0
-const WATER_MAX_FALL := 55.0
-const WATER_SPEED := 80.0
-const WATER_SWIM := -70.0
-
 const CLIMB_SPEED := 58.0
 
 # 地面翻滚：站着按 ↓ 起滚，速度锁定不能转向
@@ -139,6 +134,11 @@ func _physics_process(delta: float) -> void:
 		die()
 		return
 
+	# 碰到水就是淹死，没有游泳这回事
+	if in_water:
+		die()
+		return
+
 	# 受伤硬直：只受重力
 	if hurt_time > 0.0:
 		hurt_time -= delta
@@ -232,7 +232,7 @@ func _physics_process(delta: float) -> void:
 		# 冲刺中：速度锁定，不受方向键影响
 		dash_time -= delta
 		velocity.x = float(dash_dir) * DASH_SPEED
-	elif Input.is_action_just_pressed("down") and not in_water \
+	elif Input.is_action_just_pressed("down") \
 			and not Input.is_action_just_pressed("jump"):
 		if can_ground_jump and roll_cd <= 0.0:
 			# 站着按 ↓ 起滚。同一帧还按了跳跃就留给翻滚跳。
@@ -255,9 +255,7 @@ func _physics_process(delta: float) -> void:
 		pass
 	elif absf(dir) > 0.01:
 		var top_speed := SPEED
-		if in_water:
-			top_speed = WATER_SPEED
-		elif on_snow:
+		if on_snow:
 			top_speed = SNOW_SPEED          # 雪里走得慢
 		var accel := ICE_ACCEL if on_ice else ACCEL
 		velocity.x = move_toward(velocity.x, dir * top_speed, accel * delta)
@@ -265,13 +263,7 @@ func _physics_process(delta: float) -> void:
 		var friction := ICE_FRICTION if on_ice else FRICTION
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	if in_water:
-		# 水里：可以一直按住跳跃往上浮
-		if Input.is_action_pressed("jump"):
-			velocity.y = WATER_SWIM
-		else:
-			_apply_gravity(delta, WATER_GRAVITY, WATER_MAX_FALL)
-	elif jump_buffer > 0.0 and can_jump:
+	if jump_buffer > 0.0 and can_jump:
 		jump_buffer = 0.0
 		if can_ground_jump:
 			coyote = 0.0
@@ -532,7 +524,7 @@ func _update_anim() -> void:
 		_play("hurt")
 	elif rolling or roll_time > 0.0:
 		_play("roll")
-	elif climbing or in_water:
+	elif climbing:
 		_play("walk" if absf(velocity.x) > 5.0 or climbing else "idle")
 	elif not is_on_floor():
 		_play("walk" if absf(velocity.x) > 5.0 else "idle")

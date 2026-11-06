@@ -57,6 +57,7 @@ ENTITIES = {
     "e": "slime",
     "E": "slime_purple",
     "k": "checkpoint",
+    "f": "fruit",
 }
 
 # 三种桥用到的字符（桥是悬空的，上面不该长植物）
@@ -237,7 +238,8 @@ def build_level_01():
     platform(45, 52, 20, "r")
     ladder(45, 20, 25)      # 梯子穿过平台，人才能爬上去
     put(48, 17, "1")        # 块要够高才顶得到
-    coins(46, 51, 19)
+    coins(46, 50, 19)
+    put(51, 19, "f")        # 水果：给一层护盾
     ground(45, 52)
 
     # 7. 坑 + 浅岩桥
@@ -362,7 +364,8 @@ def build_level_02():
     # 9. 高台 + 梯子 + 紫岩
     platform(77, 88, 18, "p")
     ladder(78, 18, 25, "purple_rock")
-    coins(79, 86, 17)
+    coins(79, 85, 17)
+    put(86, 17, "f")        # 水果
     put(82, 15, "5")
     ground(77, 88)
     put(85, 25, "k")
@@ -457,6 +460,7 @@ def build_level_03():
     wall(64, 20, 25, "d")
     platform(61, 63, 18, "r")
     coins(61, 63, 17)
+    put(62, 16, "f")        # 水果：蹬墙上来才拿得到的奖励
     put(58, 25, "k")
 
     # 7. 竖井旁边的常规路线：几级台阶

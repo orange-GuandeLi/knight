@@ -188,6 +188,7 @@ func _spawn_entities() -> void:
 	var slimes := 0
 	var purple := 0
 	var checkpoints := 0
+	var fruits := 0
 	for y in height:
 		var row := _row(y)
 		for x in width:
@@ -217,8 +218,14 @@ func _spawn_entities() -> void:
 					entities.add_child(cp)
 					cp.activated.connect(_on_checkpoint)
 					checkpoints += 1
-	print("[关卡] 金币 %d 个，史莱姆 %d 只（紫 %d 只），检查点 %d 个"
-		% [coins, slimes, purple, checkpoints])
+				"fruit":
+					var fr := PICKUP_SCENE.instantiate()
+					fr.kind = "fruit"
+					fr.position = Vector2(x * TILE + TILE / 2.0, y * TILE + TILE / 2.0)
+					entities.add_child(fr)
+					fruits += 1
+	print("[关卡] 金币 %d 个，史莱姆 %d 只（紫 %d 只），检查点 %d 个，水果 %d 个"
+		% [coins, slimes, purple, checkpoints, fruits])
 
 
 func _count_char(ch: String) -> int:

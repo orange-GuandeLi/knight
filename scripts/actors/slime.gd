@@ -91,6 +91,9 @@ func _on_body_entered(body: Node2D) -> void:
 		# 翻滚撞上去也算击杀
 		player.bounce()
 		squash()
+	elif player.is_shielded():
+		# 有护盾：直接撞碎，角色不受影响
+		squash()
 	else:
 		player.take_damage(global_position.x)
 

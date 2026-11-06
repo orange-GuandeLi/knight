@@ -52,13 +52,18 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if not body is Player:
 		return
+	var player := body as Player
 	Audio.play_sfx("power_up")
 	match kind:
 		"potion":
 			Game.add_health(1)
 			Game.score_with_combo(50)
 		"fruit":
+			# 水果：给一层护盾，碰到敌人不会掉血
+			player.grant_shield(Player.SHIELD_TIME)
 			Game.score_with_combo(150)
 		_:
+			# 蘑菇：多给一段跳跃
+			player.grant_jump()
 			Game.score_with_combo(200)
 	queue_free()

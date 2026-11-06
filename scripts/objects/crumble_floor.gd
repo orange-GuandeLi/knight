@@ -114,7 +114,7 @@ func _has_player_above() -> bool:
 		var dx: float = absf(p.global_position.x - global_position.x)
 		if dx < tiles * TILE_W * 0.5 + 4.0:
 			var dy: float = p.global_position.y - global_position.y
-			# 脚底就在板面上方一点点
-			if dy < 0.0 and dy > -18.0:
+			# 脚底在板面上（dy≈0）或正在落下来
+			if dy <= 4.0 and dy > -20.0:
 				return true
 	return false

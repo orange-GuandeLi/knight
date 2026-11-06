@@ -19,7 +19,7 @@
   "....................o..o..........P..........H.............P...............................h.................................H....P........................................................................h.P..........................Gddddddd",
   ".....ooooP.........o....oP........Pooo.....P.H.............P..ooo...................P......h...............oo..P.............H....P....oo..............oo......P.......oooo........oo......................h.P.........oo......P.......Gdddddddd",
   "..Pn.P...P.P.......P...P.P......k.P.P....P.P.H.............PP....k..e...........PcPoPCP.n..h...k...........PE..P............PH....P......e.P.E..k.....c..C..E..P.....PE....k.............E....P............h.P...........cP.E.kP......Gddddddddd",
-  "GGGGGGGGGGGGGGwwwwGGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxx{++++++}GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGiiiiiiiiiiiiiiiisssssssssssssswwwwwwwwwwGGGGGGGGGGGGxxxxxxxxxxxxGGGGdddddddddd",
+  "GGGGGGGGGGGGGGWWWWGGGGGGGGG[=====]GGGGGGGGGGGGGGG..GG{++++}GGGGGGGGGGWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxx{++++++}GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGiiiiiiiiiiiiiiiissssssssssssssWWWWWWWWWWGGGGGGGGGGGGxxxxxxxxxxxxGGGGdddddddddd",
   "ddddddddddddddvvvvddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
   "ddddddddddddddvvvvddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
   "ddddddddddddddvvvvddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddd........ddddddddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIIIISSSSSSSSSSSSSSvvvvvvvvvvdddddddddddddddddddddddddddddddddddddd",
@@ -70,6 +70,7 @@
   "6": "block_purple_rock_exclaim",
   "7": "block_stone_question",
   "8": "block_stone_exclaim",
+  "W": "water_ice_surface",
   "w": "water_ice_surface_body",
   "v": "water_ice_body",
   "i": "ice_stone",
@@ -264,35 +265,35 @@
   {
    "x": 14,
    "y": 26,
-   "tiles": 3,
-   "dx": 64,
+   "tiles": 2,
+   "dx": 32,
    "dy": 0,
-   "speed": 38,
+   "speed": 34,
    "phase": 0.0
   },
   {
-   "x": 70,
+   "x": 69,
    "y": 26,
    "tiles": 3,
-   "dx": 72,
+   "dx": 112,
    "dy": 0,
-   "speed": 42,
+   "speed": 40,
    "phase": 0.4
   },
   {
-   "x": 168,
-   "y": 24,
+   "x": 164,
+   "y": 23,
    "tiles": 2,
-   "dx": 56,
+   "dx": 64,
    "dy": 0,
-   "speed": 40,
+   "speed": 38,
    "phase": 0.2
   }
  ],
  "crumbles": [
   {
-   "x": 14,
-   "y": 25,
+   "x": 49,
+   "y": 26,
    "tiles": 2,
    "material": "dirt"
   }

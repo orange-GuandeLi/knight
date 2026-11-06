@@ -32,7 +32,7 @@ ENTITY = set("oekE")
 # 桥（悬空的）
 BRIDGE = set("[=]{}+}()*")
 # 水
-WATER = set("wv")
+WATER = set("Wwv")
 
 
 def load(path):
@@ -143,6 +143,36 @@ def reachable(d):
     return seen, None
 
 
+def _is_terrain(d, x: int, y: int) -> bool:
+    """这个格子有没有实心地形（水不算）。"""
+    c = cell(d, x, y)
+    if c in ENTITY or c in WATER or c == "." or c in LADDER:
+        return False
+    key = d["tiles"].get(c, "")
+    if key == "":
+        return False
+    # 桥 / 地形 / 互动块 / 木箱 都算实心
+    return True
+
+
+def _platform_cells(d, p):
+    """平台在整个行程里占过的所有格子。"""
+    x0 = int(p["x"])
+    y0 = int(p["y"])
+    w = int(p.get("tiles", 1))
+    dx = int(p.get("dx", 0)) // 16
+    dy = int(p.get("dy", 0)) // 16
+    out = set()
+    steps = max(abs(dx), abs(dy)) + 1
+    for i in range(steps):
+        t = i / float(max(1, steps - 1)) if steps > 1 else 0.0
+        cx = x0 + int(round(dx * t))
+        cy = y0 + int(round(dy * t))
+        for k in range(w):
+            out.add((cx + k, cy))
+    return sorted(out)
+
+
 def check(path):
     d = load(path)
     W, H = d["width"], d["height"]
@@ -212,6 +242,13 @@ def check(path):
                 for nb in (x - 1, x + 1):
                     if (nb, y) in bridge_cells:
                         problems.append("水面 (%d,%d) 直接挨着桥 (%d,%d)" % (x, y, nb, y))
+
+    # --- 移动平台不能压在地形上 ---
+    for pi, p in enumerate(d.get("platforms", [])):
+        for (cx, cy) in _platform_cells(d, p):
+            if _is_terrain(d, cx, cy):
+                problems.append("移动平台 %d 压在 (%d,%d) 的地形上（%s）"
+                                % (pi, cx, cy, cell(d, cx, cy)))
 
     # 统计
     n = {c: sum(1 for row in d["map"] for ch in row if ch == c) for c in "oekE"}

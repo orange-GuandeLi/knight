@@ -18,8 +18,8 @@
   "....................rrrrrrr.................................d...d.hpppppp.....................................4.................................................H.....................8.........d...d..........................Gdddddd",
   "................P.......................................P...d...d.h.............................................................................................H...............................d...d.........................Gddddddd",
   ".....oooP.......P.....................oooo..P.....oo....P...d...d.h......................oooo......................P..............ooo......P......oo..........P.H...................oo..P.......d...d............P...........Gdddddddd",
-  "..Pn....P.......P...P..............P.E....k.P...Pc..C..ePkk.d...d.h...P...............P.E....k.P........P..........P............P....E...k.P.....c..c.PC..E...P.H...............P.......P.E.k..kd...d..........P.P....E.....Gddddddddd",
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGiiiiiiiiiiiiiGGGGGGGGGGGGGGGGGGGGGGGGGGGGwwwwwwwwwsssssssssssssGGGGGGGGG{++++++}GGGGGGGGGGGGGGGiiiiiiiiiiiiiiGGGGGGGGGGGGGGGGGGGGGGGGGGwwwwwwwwwwssssssssssssGGGGGGGGGGGGGGxxxxxxxxxxxxGGGdddddddddd",
+  "..Pn....P.......P...P..............P.E....k.P...Pc..C..ePkk.d...d.h...P...............P.E....k.P........P..........P............P....E...k.P.....c..c.PC...E..P.H...............P.......P.E.k..kd...d..........P.P....E.....Gddddddddd",
+  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGiiiiiiiiiiiiiGGGGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWWWWsssssssssssssGGGGGGGGG{++++++}GGGGGGGG...GGGGiiiiiiiiiiiiiiGGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWWWWWssssssssssssGGGGGGGGGGGGGGxxxxxxxxxxxxGGGdddddddddd",
   "ddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIddddddddddddddddddddddddddddvvvvvvvvvSSSSSSSSSSSSSddddddddd........dddddddddddddddIIIIIIIIIIIIIIddddddddddddddddddddddddddvvvvvvvvvvSSSSSSSSSSSSddddddddddddddddddddddddddddddddddddddd",
   "ddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIddddddddddddddddddddddddddddvvvvvvvvvSSSSSSSSSSSSSddddddddd........dddddddddddddddIIIIIIIIIIIIIIddddddddddddddddddddddddddvvvvvvvvvvSSSSSSSSSSSSddddddddddddddddddddddddddddddddddddddd",
   "ddddddddddddddddddddddddddddddddddIIIIIIIIIIIIIddddddddddddddddddddddddddddvvvvvvvvvSSSSSSSSSSSSSddddddddd........dddddddddddddddIIIIIIIIIIIIIIddddddddddddddddddddddddddvvvvvvvvvvSSSSSSSSSSSSddddddddddddddddddddddddddddddddddddddd",
@@ -70,6 +70,7 @@
   "6": "block_purple_rock_exclaim",
   "7": "block_stone_question",
   "8": "block_stone_exclaim",
+  "W": "water_ice_surface",
   "w": "water_ice_surface_body",
   "v": "water_ice_body",
   "i": "ice_stone",
@@ -220,37 +221,37 @@
  "coin_goal": 37,
  "platforms": [
   {
-   "x": 169,
+   "x": 75,
    "y": 26,
    "tiles": 3,
-   "dx": 64,
+   "dx": 96,
    "dy": 0,
-   "speed": 40,
+   "speed": 38,
    "phase": 0.5
   },
   {
-   "x": 130,
-   "y": 24,
+   "x": 169,
+   "y": 26,
    "tiles": 3,
-   "dx": 72,
+   "dx": 112,
    "dy": 0,
-   "speed": 44,
+   "speed": 42,
    "phase": 0.2
   },
   {
    "x": 180,
-   "y": 24,
+   "y": 23,
    "tiles": 3,
    "dx": 64,
    "dy": 0,
-   "speed": 40,
+   "speed": 38,
    "phase": 0.7
   }
  ],
  "crumbles": [
   {
-   "x": 120,
-   "y": 25,
+   "x": 122,
+   "y": 26,
    "tiles": 3,
    "material": "dirt"
   }

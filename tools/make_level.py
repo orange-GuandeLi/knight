@@ -41,6 +41,7 @@ TILES = {
     "3": "block_pale_rock_question", "4": "block_pale_rock_exclaim",
     "5": "block_purple_rock_question", "6": "block_purple_rock_exclaim",
     "7": "block_stone_question", "8": "block_stone_exclaim",
+    "W": "water_ice_surface",          # 水面线：浪花画在砖的下缘
     "w": "water_ice_surface_body",
     "v": "water_ice_body",
     # 冰面：地表用「冰面砖」（上面一层冰壳 + 分隔线），底下填「冰体砖」（通体一块冰）
@@ -130,8 +131,9 @@ def arc_coins(x0, y, n, rise=3):
         put(x, y - dy, "o")
 
 
-def pool(x0, x1, surface="w", body="v", bottom=32, floor_ch="d"):
-    """水池：水面在 SURFACE 行，往下填到池底。"""
+def pool(x0, x1, surface="W", body="v", bottom=32, floor_ch="d"):
+    """水池。水面线放在 SURFACE 这一行（跟路面同一行的位置），
+    但浪花画在砖的下缘，所以水面实际比路面低一格。"""
     for x in range(x0, x1 + 1):
         put(x, SURFACE, surface)
         for y in range(SURFACE + 1, bottom):
@@ -164,7 +166,17 @@ def fill_pits_with_water():
         if grid[SURFACE][x] != ".":
             continue
         for y in range(SURFACE, HEIGHT):
-            put(x, y, "w" if y == SURFACE else "v")
+            put(x, y, "W" if y == SURFACE else "v")
+
+
+def clear_crumble_cells(crumbles):
+    """会塌的地板要占掉那块地形——不然它塌了下面还是实地，玩家掉不下去。"""
+    for c in crumbles:
+        x0 = int(c["x"])
+        y0 = int(c["y"])
+        w = int(c.get("tiles", 2))
+        for x in range(x0, x0 + w):
+            put(x, y0, ".")
 
 
 def place_decor(trees, grass):
@@ -235,30 +247,30 @@ def make_data(trees, grass, conflicts, time_limit, spawn=None, platforms=None,
 # speed = 速度，phase = 起始相位（错开几块平台的节奏）。
 
 PLATFORMS_1 = [
-    # 第一个坑上方来回横移的「船」：踩着它过河
-    {"x": 14, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 38, "phase": 0.0},
-    # 水池上的横移平台
-    {"x": 70, "y": 26, "tiles": 3, "dx": 72, "dy": 0, "speed": 42, "phase": 0.4},
-    # 冰面上方的小平台，可以踩上去歇脚
-    {"x": 168, "y": 24, "tiles": 2, "dx": 56, "dy": 0, "speed": 40, "phase": 0.2},
+    # 第一个坑上的「船」：坑只有 14~17 四格，船 2 格宽、来回 2 格，正好不出界
+    {"x": 14, "y": 26, "tiles": 2, "dx": 32, "dy": 0, "speed": 34, "phase": 0.0},
+    # 水池上的大船：池子 69~78 共 10 格，船 3 格宽、来回 7 格
+    {"x": 69, "y": 26, "tiles": 3, "dx": 112, "dy": 0, "speed": 40, "phase": 0.4},
+    # 冰面上方悬空的小平台：整段都在空中，不碰地面
+    {"x": 164, "y": 23, "tiles": 2, "dx": 64, "dy": 0, "speed": 38, "phase": 0.2},
 ]
 
 PLATFORMS_2 = [
-    # 断崖处的上下升降平台
-    {"x": 33, "y": 24, "tiles": 2, "dx": 0, "dy": -32, "speed": 26, "phase": 0.0},
-    # 水池上的横移平台
-    {"x": 70, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.5},
-    # 冰面上方的小平台
-    {"x": 150, "y": 24, "tiles": 3, "dx": 72, "dy": 0, "speed": 44, "phase": 0.1},
+    # 断崖处的升降平台：整段都在空中
+    {"x": 33, "y": 22, "tiles": 2, "dx": 0, "dy": -16, "speed": 22, "phase": 0.0},
+    # 水池上的船：池子 70~76 共 7 格
+    {"x": 70, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 38, "phase": 0.5},
+    # 冰面上方悬空的小平台
+    {"x": 150, "y": 23, "tiles": 3, "dx": 72, "dy": 0, "speed": 42, "phase": 0.1},
 ]
 
 PLATFORMS_3 = [
-    # 水池上的横移平台
-    {"x": 169, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.5},
-    # 冰面上方的小平台
-    {"x": 130, "y": 24, "tiles": 3, "dx": 72, "dy": 0, "speed": 44, "phase": 0.2},
-    # 雪面上方的小平台
-    {"x": 180, "y": 24, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.7},
+    # 水池上的船：池子 75~83 共 9 格
+    {"x": 75, "y": 26, "tiles": 3, "dx": 96, "dy": 0, "speed": 38, "phase": 0.5},
+    # 第二个池子上的船：池子 169~178 共 10 格
+    {"x": 169, "y": 26, "tiles": 3, "dx": 112, "dy": 0, "speed": 42, "phase": 0.2},
+    # 雪面上方悬空的小平台
+    {"x": 180, "y": 23, "tiles": 3, "dx": 64, "dy": 0, "speed": 38, "phase": 0.7},
 ]
 
 
@@ -269,8 +281,8 @@ PLATFORMS_3 = [
 # boss:     BOSS。x = 出生列
 
 CRUMBLES_1 = [
-    # 第一个坑上面：踩着过河会塌，逼你走别的路
-    {"x": 14, "y": 25, "tiles": 2, "material": "dirt"},
+    # 实地上的塌板：踩上去就塌，逼你走别的路
+    {"x": 49, "y": 26, "tiles": 2, "material": "dirt"},
 ]
 
 ROCKS_1 = [
@@ -280,8 +292,8 @@ ROCKS_1 = [
 ]
 
 CRUMBLES_2 = [
-    {"x": 33, "y": 25, "tiles": 2, "material": "dirt"},
-    {"x": 90, "y": 25, "tiles": 2, "material": "gold"},
+    {"x": 52, "y": 26, "tiles": 2, "material": "dirt"},
+    {"x": 92, "y": 26, "tiles": 2, "material": "gold"},
 ]
 
 ROCKS_2 = [
@@ -290,7 +302,7 @@ ROCKS_2 = [
 ]
 
 CRUMBLES_3 = [
-    {"x": 120, "y": 25, "tiles": 3, "material": "dirt"},
+    {"x": 122, "y": 26, "tiles": 3, "material": "dirt"},
 ]
 
 ROCKS_3 = [
@@ -513,6 +525,7 @@ def build_level_01():
     ]
 
     fill_pits_with_water()
+    clear_crumble_cells(CRUMBLES_1)
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 240, platforms=PLATFORMS_1,
         crumbles=CRUMBLES_1, rocks=ROCKS_1, sections=SECTIONS_1)
@@ -576,7 +589,7 @@ def build_level_02():
 
     # 10. 冰面冲刺 + 紫史莱姆群
     ground(89, 101, surface="i", fill="I")
-    put(92, 25, "E")
+    put(95, 25, "E")
     put(96, 25, "E")
     coins(93, 95, 24)
 
@@ -609,7 +622,7 @@ def build_level_02():
     # 15. 冰面 + 木箱
     ground(147, 160, surface="i", fill="I")
     put(150, 25, "c")
-    put(154, 25, "E")
+    put(155, 25, "E")
     coins(151, 153, 24)
 
     # 16. 水池
@@ -681,6 +694,7 @@ def build_level_02():
     ]
 
     fill_pits_with_water()
+    clear_crumble_cells(CRUMBLES_2)
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 280, platforms=PLATFORMS_2,
         crumbles=CRUMBLES_2, rocks=ROCKS_2, sections=SECTIONS_2)
@@ -779,7 +793,7 @@ def build_level_03():
     put(145, 25, "c")
     put(148, 25, "c")
     put(151, 25, "C")
-    put(154, 25, "E")
+    put(155, 25, "E")
     coins(146, 147, 24)
 
     # 14. 梯子 + 高台 + 水果
@@ -848,6 +862,7 @@ def build_level_03():
     ]
 
     fill_pits_with_water()
+    clear_crumble_cells(CRUMBLES_3)
     conflicts = place_decor(trees, grass)
     data, conflicts = make_data(trees, grass, conflicts, 300, platforms=PLATFORMS_3,
         crumbles=CRUMBLES_3, rocks=ROCKS_3, boss=BOSS_3, sections=SECTIONS_3)

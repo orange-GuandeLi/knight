@@ -19,6 +19,10 @@ const LAYER_SNOW := 4     # 位 32
 const ICE_TILES := ["ice", "ice_stone"]
 # 雪砖：不难走，是跳不高
 const SNOW_TILES := ["snow_ice", "snow_stone"]
+# 纯浪花线的砖：只有画面没有碰撞。
+# 它画在路面那一行，但浪花画在砖的下缘（比路面低 14px），
+# 所以不能给整块砖加水碰撞——那会让水面在路面的高度就能碰到人。
+const WATER_SURFACE_ONLY := ["water_ice_surface"]
 
 
 
@@ -81,6 +85,9 @@ func _physics_for(group: String, key: String) -> Array:
 				return [LAYER_WORLD, LAYER_SNOW]
 			return [LAYER_WORLD]
 		"water":
+			# 纯浪花线的砖不参与碰撞，触碰面留给下面的水体
+			if key in WATER_SURFACE_ONLY:
+				return []
 			return [LAYER_WATER]
 		"bg", "plants":
 			return []   # 装饰，不挡路

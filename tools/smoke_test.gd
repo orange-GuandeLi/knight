@@ -26,6 +26,14 @@ var wall_vx := 0.0
 var ps_vy := 0.0
 var plat_px := 0.0
 var plat_player_x := 0.0
+var q_cell := Vector2i(-1, -1)
+var ladder_col := -1
+var ice_cell := Vector2i(-1, -1)
+var bridge_cell := Vector2i(-1, -1)
+var cp_target_x := 0.0
+var shaft_col := -1
+var coin_a := Vector2.ZERO
+var coin_b := Vector2.ZERO
 var cp_x := 0.0
 var _seq_done := false
 
@@ -126,13 +134,14 @@ func _on_physics() -> void:
 
 		# ---------- 撞问号块（要按住跳才够高）----------
 		30:
-			_teleport(21 * 16 + 8, GROUND_Y)
+			q_cell = _find_tile("block_dirt_question")
+			_teleport(float(q_cell.x) * 16 + 8, GROUND_Y)
 		36:
 			Input.action_press("jump")
 		80:
 			Input.action_release("jump")
 		105:
-			var key := _key_at(Vector2i(21, 22))
+			var key := _key_at(q_cell)
 			_check("撞块变空块", key == "block_dirt_question_used", "砖=" + key)
 			_check("撞块掉出奖励", _count_pickups() > 0, "拾取物 %d 个" % _count_pickups())
 
@@ -204,9 +213,10 @@ func _on_physics() -> void:
 
 		# ---------- 爬梯 ----------
 		575:
-			_teleport(45 * 16 + 8, GROUND_Y)
+			ladder_col = _find_ladder_col()
+			_teleport(float(ladder_col) * 16 + 8, GROUND_Y)
 		585:
-			_teleport(45 * 16 + 8, GROUND_Y)
+			_teleport(float(ladder_col) * 16 + 8, GROUND_Y)
 			Input.action_press("climb_up")
 		645:
 			climb_y = p.global_position.y
@@ -239,8 +249,10 @@ func _on_physics() -> void:
 
 		# ---------- 通关（要先收够金币）----------
 		810:
-			# 走到出口。金币不够的话不该通关
-			_teleport(float((level.width - 4) * 16 + 8), 300)
+			# 走到出口。金币不够的话不该通关。
+			# 传送高度要按那一列的实际地面算，不然会塞进实心地形里摔死
+			var exit_col: int = int(level.width) - 4
+			_teleport(float(exit_col) * 16 + 8, _surface_y(exit_col) - 32.0)
 		840:
 			_check("金币没收够不能通关", not Game.finished,
 				"finished=%s coins=%d/%d" % [Game.finished, Game.coins, Game.coin_goal])
@@ -314,7 +326,12 @@ func _on_physics() -> void:
 
 		# ---------- 冰面 ----------
 		990:
-			_teleport(107 * 16 + 8, GROUND_Y)
+			# 给个护盾：冰面上有会跳的紫史莱姆，别让它们把角色打死影响测速
+			if p.dead:
+				p.respawn(p.global_position)
+			p.grant_shield(60.0)
+			ice_cell = _find_tile("ice_stone")
+			_teleport(float(ice_cell.x) * 16 + 8, GROUND_Y)
 		1000:
 			_check("识别到冰面", p.on_ice, "on_ice=%s" % p.on_ice)
 			Input.action_press("move_right")
@@ -330,10 +347,12 @@ func _on_physics() -> void:
 		1035:
 			Game.break_combo()                   # 从干净状态开始数
 		1040:
-			# 挑两枚之前没被碰过的金币（83,25 那枚在砸箱子时就被顺路吃了）
-			_teleport(6 * 16 + 8, 24 * 16 + 8)
+			# 找两枚还在的金币（前面的测试可能已经吃掉了一些）
+			coin_a = _find_coin_pos()
+			_teleport(coin_a.x, coin_a.y)
 		1060:
-			_teleport(19 * 16 + 8, 24 * 16 + 8)
+			coin_b = _find_coin_pos()
+			_teleport(coin_b.x, coin_b.y)
 		1080:
 			_check("连击累计倍率", Game.combo == 2,
 				"combo=%d 倍率=%d" % [Game.combo, maxi(1, Game.combo)])
@@ -343,13 +362,14 @@ func _on_physics() -> void:
 		# 关卡1 的泥土桥在 27~33 列：中间是绳面（第 2 行，比地面低 2px），
 		# 两头是抬高的桥墩（跟地面齐平）。桥墩那端是斜坡。
 		1090:
-			_teleport(29 * 16 + 8, 300)           # 桥中间那块的正上方
+			bridge_cell = _find_tile("bridge_dirt_middle")
+			_teleport(float(bridge_cell.x) * 16 + 8, 300)   # 桥中间那块的正上方
 		1140:
 			_check("桥面贴着绳面", absf(p.global_position.y - (26 * 16 + 2)) < 1.5,
 				"桥上 y=%.1f（绳面 %.0f，地面 %.0f）"
 				% [p.global_position.y, 26 * 16 + 2, 26 * 16])
 		1150:
-			_teleport(27 * 16 + 2, 300)           # 桥墩那端（斜坡）
+			_teleport(float(bridge_cell.x - 1) * 16 + 2, 300)   # 桥墩那端（斜坡）
 		1200:
 			_check("桥头是斜坡不是直墙", p.global_position.y <= 26 * 16 + 3.0
 					and p.global_position.y >= 26 * 16 - 1.0,
@@ -375,11 +395,12 @@ func _on_physics() -> void:
 
 		# ---------- 检查点 ----------
 		1210:
-			_teleport(65 * 16 + 8, GROUND_Y)     # 走到检查点木牌上
+			cp_target_x = _find_checkpoint_x()
+			_teleport(cp_target_x, GROUND_Y)     # 走到检查点木牌上
 		1230:
 			cp_x = level.respawn_pos.x
-			_check("碰到检查点就激活", absf(cp_x - (65 * 16 + 8)) < 2.0,
-				"复活点 x=%.0f（应为 %d）" % [cp_x, 65 * 16 + 8])
+			_check("碰到检查点就激活", absf(cp_x - cp_target_x) < 2.0,
+				"复活点 x=%.0f（应为 %.0f）" % [cp_x, cp_target_x])
 
 		# ---------- 从检查点复活 ----------
 		1240:
@@ -440,7 +461,9 @@ func _on_physics() -> void:
 			Game.level_index = 2
 			main.load_level()
 			_refresh_nodes()
-			_teleport(61 * 16 + 2, GROUND_Y)     # 贴着左墙站
+			# 竖井：找一面竖着的墙，站在它右边贴墙
+			shaft_col = _find_wall_col()
+			_teleport(float(shaft_col) * 16 + 14, GROUND_Y)
 			Input.action_press("move_left")
 		1555:
 			Input.action_press("jump")
@@ -491,7 +514,11 @@ func _on_physics() -> void:
 		# 放在最后：淹死会打断后面所有测试（角色在死亡动画里动不了）
 		1680:
 			Game.set_lives(3)
-			_teleport(172 * 16 + 8, 430)     # 直接丢进第 3 关的水塘
+			# 先把玩家救活（前面的测试可能已经死了）
+			if p.dead:
+				p.respawn(p.global_position)
+			var wp := _find_water_pos()
+			_teleport(wp.x, wp.y)            # 直接丢进水塘
 		1710:
 			_check("掉进水里会淹死", p.dead,
 				"dead=%s in_water=%s" % [p.dead, p.in_water])
@@ -513,6 +540,88 @@ func _teleport(x: float, y: float) -> void:
 
 func _check(name: String, ok: bool, detail: String) -> void:
 	results.append(("PASS " if ok else "FAIL ") + name + "  " + detail)
+
+
+## 在关卡里找一个砖（按砖名开头匹配），返回格坐标。找不到返回 (-1,-1)。
+func _find_tile(prefix: String) -> Vector2i:
+	for y in range(level.height):
+		for x in range(level.width):
+			if _key_at(Vector2i(x, y)).begins_with(prefix):
+				return Vector2i(x, y)
+	return Vector2i(-1, -1)
+
+
+## 找地面那一行上的某个砖
+func _find_surface_tile(prefix: String) -> Vector2i:
+	for y in range(level.height):
+		for x in range(level.width):
+			if _key_at(Vector2i(x, y)).begins_with(prefix):
+				return Vector2i(x, y)
+	return Vector2i(-1, -1)
+
+
+## 找第一个检查点实体，返回它的 x（世界坐标）
+func _find_checkpoint_x() -> float:
+	for c in entities.get_children():
+		if c.get_script() != null \
+				and String(c.get_script().resource_path).ends_with("checkpoint.gd"):
+			return c.global_position.x
+	return -1.0
+
+
+## 找一列有梯子的地方，返回列号
+func _find_ladder_col() -> int:
+	for x in range(level.width):
+		for y in range(level.height):
+			if _key_at(Vector2i(x, y)).begins_with("ladder_"):
+				return x
+	return -1
+
+
+## 找一个还没被吃掉的金币，返回世界坐标
+func _find_coin_pos() -> Vector2:
+	for c in entities.get_children():
+		if c.get_script() != null \
+				and String(c.get_script().resource_path).ends_with("coin.gd"):
+			return c.global_position
+	return Vector2(8, 8 * 16 + 8)
+
+
+## 某一列的地面在第几行（返回世界 y）。找不到返回默认地面高度。
+func _surface_y(col: int) -> float:
+	for y in range(level.height):
+		var k := _key_at(Vector2i(col, y))
+		if k != "" and not k.begins_with("bridge_") and not k.begins_with("ladder_") \
+				and not k.begins_with("water_"):
+			return float(y) * 16
+	return GROUND_Y
+
+
+## 找一滩水，返回水面的世界坐标
+func _find_water_pos() -> Vector2:
+	for y in range(level.height):
+		for x in range(level.width):
+			var k := _key_at(Vector2i(x, y))
+			if k.begins_with("water_") and k != "water_ice_surface":
+				return Vector2(float(x) * 16 + 8, float(y) * 16 + 8)
+	return Vector2(72, 430)
+
+
+## 找第 3 关竖井的墙：找一列「上面连续几行都是实心地形」的竖墙
+func _find_wall_col() -> int:
+	for x in range(level.width):
+		# 从上往下数，连续 4 行以上都是地形的列
+		var cnt := 0
+		for y in range(14, 26):
+			var k := _key_at(Vector2i(x, y))
+			if k != "" and not k.begins_with("bridge_") and not k.begins_with("ladder_") \
+					and not k.begins_with("water_"):
+				cnt += 1
+				if cnt >= 4:
+					return x
+			else:
+				cnt = 0
+	return -1
 
 
 func _key_at(cell: Vector2i) -> String:

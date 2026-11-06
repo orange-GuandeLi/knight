@@ -64,6 +64,8 @@ def is_ladder(d, x, y):
 
 # 移动平台经过的格子（按关卡编号分开存，校验时按当前关卡取）
 EXTRA_STAND = {}
+# 当前正在校验的关卡，用宽度当 key
+EXTRA_KEY = [0]
 
 
 def stand_rows(d, x):
@@ -77,9 +79,7 @@ def stand_rows(d, x):
     for y in range(d["top_rows"], d["height"]):
         if is_solid(d, x, y) and not is_solid(d, x, y - 1):
             out.append(y)
-    span = water_span(d, x)
-    if span:
-        out.append(span[0])          # 水面，人浮在这
+    # 水不算落脚点：掉进去就死
     return out
 
 
@@ -121,13 +121,7 @@ def reachable(d):
                         if (x, cand) not in seen:
                             seen.add((x, cand))
                             q.append((x, cand))
-        # 水里：能上下随便游
-        wspan = water_span(d, x)
-        if wspan:
-            for cand in range(wspan[0], wspan[1] + 1):
-                if (x, cand) not in seen:
-                    seen.add((x, cand))
-                    q.append((x, cand))
+        # 水里游不了，掉进去就死，所以水柱不算可达
         # 走 / 跳到别的列。
         # 中间有没有墙不用单独判断：够不到的墙顶不会出现在候选里，
         # 够得到的墙顶本身就是落脚点，会被当成中转站。
@@ -135,12 +129,24 @@ def reachable(d):
             nx = x + dx
             if nx < 0 or nx >= W:
                 continue
+            # 这一列是水就过不去，除非有桥（同高度是实地）或者船
+            if water_span(d, nx) and not is_solid(d, nx, r):
+                if not _has_boat(nx, r):
+                    continue
             for cand in stand_rows(d, nx):
                 if abs(cand - r) <= MAX_JUMP_CELLS:
                     if (nx, cand) not in seen:
                         seen.add((nx, cand))
                         q.append((nx, cand))
     return seen, None
+
+
+def _has_boat(x: int, row: int) -> bool:
+    """这一列在给定高度有没有船（移动平台）。"""
+    for (ey, ex) in EXTRA_STAND.get(EXTRA_KEY[0], []):
+        if ex == x and abs(ey - row) <= 1:
+            return True
+    return False
 
 
 def _is_terrain(d, x: int, y: int) -> bool:
@@ -169,7 +175,8 @@ def _platform_cells(d, p):
         cx = x0 + int(round(dx * t))
         cy = y0 + int(round(dy * t))
         for k in range(w):
-            out.add((cx + k, cy))
+            # 统一用 (行, 列)
+            out.add((cy, cx + k))
     return sorted(out)
 
 
@@ -190,6 +197,7 @@ def check(path):
             for yy in range(y0 + min(0, dy), y0 + max(0, dy) + 1):
                 stand.add((yy, xx))
     EXTRA_STAND[d["width"]] = sorted(stand)
+    EXTRA_KEY[0] = d["width"]
 
     seen, err = reachable(d)
     if err:

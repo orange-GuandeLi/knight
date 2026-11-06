@@ -133,6 +133,9 @@ knight/
 
 打开项目直接 F5（或命令行 `Godot --path .`），主场景就是 `scenes/main/Main.tscn`。
 
+**开场是标题画面**，按 `Space` / `Enter` 开始；游戏中按 `ESC` 暂停，弹出菜单
+（`↑` `↓` 选，`Enter` 确认，`ESC` 继续）。菜单里有 `RESUME` / `RESTART LEVEL` / `QUIT`。
+
 | 操作 | 按键 |
 |---|---|
 | 左右移动 | `A` / `D` 或 `←` / `→` |
@@ -144,6 +147,7 @@ knight/
 | 游泳 | 掉进水里按住跳跃上浮 |
 | 重开本关 | `R`（输了、或全部通关后，按 R 从第一关开始） |
 | 下一关 | 通关后按 `Enter` / `空格` |
+| 暂停菜单 | `ESC`　**`↑` `↓` 选，`Enter` 确认，`ESC` 继续** |
 | 全屏切换 | `F11` |
 
 **↑ / W 不再触发跳跃**，只负责爬梯；跳跃只用 `Space` / `Z`。
@@ -219,6 +223,8 @@ scenes/
   objects/Pickup.tscn   蘑菇 / 药瓶 / 水果
   objects/Checkpoint.tscn 检查点（木牌）
   ui/HUD.tscn           状态条：金币图标+数量 / 爱心 / 骑士头像+命数 / 连击 / 倒计时 / 分数
+  ui/StartScreen.tscn   开场标题画面（标题 + 骑士 + 操作说明）
+  ui/PauseMenu.tscn     暂停菜单（继续 / 重开 / 退出）
 
 scripts/
   main.gd               关卡切换、重开、全屏
@@ -229,6 +235,8 @@ scripts/
   objects/checkpoint.gd 检查点
   levels/level.gd       读 json 铺砖、生成实体、撞块、砸木箱、倒计时、通关判定
   ui/hud.gd             状态栏
+  ui/start_screen.gd    标题画面（按空格开始）
+  ui/pause_menu.gd      暂停菜单（上下键选单）
   autoload/game.gd      全局状态（分数 / 命 / 血 / 金币 / 连击 / 倒计时 / 关卡序号）
   autoload/audio.gd     音效池 + 背景音乐
   utils/tile_index.gd   砖名 <-> 图集坐标
@@ -297,7 +305,8 @@ Godot --path . res://tools/Screenshot.tscn --resolution 1280x720   # 截真实�
 `tools/make_level.py` 里放了树和草之后也会自己查一遍「脚下是不是桥」，
 摆错了当场就会打印冲突。
 
-`tools/Screenshot.tscn` 会截一帧存到 `/tmp/game_shot.png`，加 `-- clear` 还能截通关提示那张。
+`tools/Screenshot.tscn` 会截一帧存到 `/tmp/game_shot.png`，加参数还能截别的界面：
+`-- clear`（通关提示）、`-- start`（标题画面）、`-- pause`（暂停菜单）。
 **必须带窗口跑**，`--headless` 没有渲染输出。
 
 ## 自测
@@ -306,12 +315,13 @@ Godot --path . res://tools/Screenshot.tscn --resolution 1280x720   # 截真实�
 Godot --headless --path . res://tools/SmokeTest.tscn
 ```
 
-共 35 项检查：站立 / 跑动 / 撞问号块 / 短按跳矮 / 长按跳高 / 二段跳 / 上键不起跳 /
+共 39 项检查：开场显示标题画面 / 标题画面按空格开始 / ESC 弹出暂停菜单 / ESC 关掉暂停菜单 /
+站立 / 跑动 / 撞问号块 / 短按跳矮 / 长按跳高 / 二段跳 / 上键不起跳 /
 踩史莱姆 / 入水 / 爬梯 / 摔死扣命 / 原地复活 / HUD 爱心 / HUD 命数 / HUD 金币 / 通关 /
 通关文字 / 地面翻滚冲刺 / 翻滚撞碎木箱 / 识别到冰面 / 冰面打滑不刹车 / 连击累计倍率 /
 桥面贴着绳面 / 桥头是斜坡不是直墙 / 走不出关卡左边界 / 碰到检查点就激活 /
-从检查点复活 / 关卡有倒计时 /
-HUD 显示倒计时 / 通关后进下一关 / 第 2 关已载入 / 换关后清掉通关提示 / 贴墙下滑 / 墙跳蹬出去。
+从检查点复活 / 关卡有倒计时 / HUD 显示倒计时 / 通关后进下一关 / 第 2 关已载入 /
+换关后清掉通关提示 / 贴墙下滑 / 墙跳蹬出去。
 
 > 用 `--quit-after` 这类硬退出时，退出日志里会多出 2 条 MP3 播放对象的泄漏警告。
 > 那是 Godot 硬退出时音频线程来不及回收造成的，不影响运行。

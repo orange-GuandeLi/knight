@@ -24,6 +24,7 @@ var climb_y := 0.0
 var ice_vx := 0.0
 var wall_vx := 0.0
 var cp_x := 0.0
+var _seq_done := false
 
 const GROUND_Y := 416.0
 
@@ -31,7 +32,66 @@ const GROUND_Y := 416.0
 func _ready() -> void:
 	main = load("res://scenes/main/Main.tscn").instantiate()
 	add_child(main)
+	await get_tree().process_frame
+
+	# 开场是标题画面，整个游戏是暂停的。先确认它在，再按空格开始。
+	var start_screen: CanvasLayer = main.get_node("StartScreen")
+	_check("开场显示标题画面", start_screen.visible and get_tree().paused,
+		"visible=%s paused=%s" % [start_screen.visible, get_tree().paused])
+	_press_key(KEY_SPACE)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_check("标题画面按空格开始", (not start_screen.visible) and (not get_tree().paused),
+		"visible=%s paused=%s" % [start_screen.visible, get_tree().paused])
+
 	get_tree().physics_frame.connect(_on_physics)
+	# 等按物理帧计数的主流程跑完
+	while not _seq_done:
+		await get_tree().physics_frame
+
+	# ---------- 暂停菜单 ----------
+	# 暂停会停掉整个树，physics_frame 不再发，所以这段不能放在按帧计数的流程里
+	var pm: CanvasLayer = main.get_node("PauseMenu")
+	_press_key(KEY_ESCAPE)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_check("ESC 弹出暂停菜单", pm.visible and get_tree().paused,
+		"visible=%s paused=%s" % [pm.visible, get_tree().paused])
+	_press_key(KEY_ESCAPE)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_check("ESC 关掉暂停菜单", (not pm.visible) and (not get_tree().paused),
+		"visible=%s paused=%s" % [pm.visible, get_tree().paused])
+
+	_summary()
+
+
+## 模拟按一次键，走正常输入管线（Input.action_press 不会产生事件）
+func _press_key(keycode: Key) -> void:
+	# keycode 和 physical_keycode 都要设：内置的 ui_* 动作按 keycode 匹配，
+	# 自己定义的 jump / next_level 按 physical_keycode 匹配。
+	# 按下和松开都要发，不然动作会一直处于「按下」状态，后面的测试全乱。
+	_press_keycode(keycode, true)
+	_press_keycode(keycode, false)
+
+
+func _press_keycode(keycode: Key, pressed: bool) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = keycode
+	ev.physical_keycode = keycode
+	ev.pressed = pressed
+	Input.parse_input_event(ev)
+
+
+func _summary() -> void:
+	print("\n===== 冒烟测试 =====")
+	var ok := 0
+	for r in results:
+		print(r)
+		if r.begins_with("PASS"):
+			ok += 1
+	print("通过 %d/%d" % [ok, results.size()])
+	get_tree().quit()
 
 
 ## 换关之后要把节点引用重新拿一遍（旧关卡已经释放了）
@@ -183,7 +243,7 @@ func _on_physics() -> void:
 			_check("走到终点通关", Game.finished, "finished=%s" % Game.finished)
 			var msg := ""
 			if hud != null:
-				msg = hud.get_node("Message").text
+				msg = hud.message.text
 			_check("HUD 显示通关文字", msg.contains("CLEAR"), "message=%s" % msg.replace("\n", " / "))
 
 		# ---------- 地面翻滚冲刺 ----------
@@ -302,8 +362,8 @@ func _on_physics() -> void:
 				"level_index=%d" % Game.level_index)
 			_check("第 2 关已载入", level.data_path.ends_with("level02.json"),
 				"数据=%s" % level.data_path)
-			_check("换关后清掉通关提示", hud.get_node("Message").text == "",
-				"提示='%s'" % hud.get_node("Message").text.replace("\n", " / "))
+			_check("换关后清掉通关提示", hud.message.text == "",
+				"提示='%s'" % hud.message.text.replace("\n", " / "))
 
 		# ---------- 墙跳（第 3 关的竖井）----------
 		1420:
@@ -334,14 +394,7 @@ func _on_physics() -> void:
 			Input.action_release("move_left")
 
 		1500:
-			print("\n===== 冒烟测试 =====")
-			var ok := 0
-			for r in results:
-				print(r)
-				if r.begins_with("PASS"):
-					ok += 1
-			print("通过 %d/%d" % [ok, results.size()])
-			get_tree().quit()
+			_seq_done = true
 
 
 func _start_track() -> void:

@@ -1,8 +1,11 @@
 extends Node2D
-## 游戏入口：承载关卡和 HUD，管音乐、关卡切换和重开。
+## 游戏入口：承载关卡和 HUD，管音乐、关卡切换、暂停菜单和重开。
 ##
 ## 第一次进游戏时 Game 里的就是默认值，不用重置；之后的重置都由 R 键触发，
 ## 这样死亡复活时命数不会被刷回满。
+##
+## 开场停在标题画面（整个树是暂停的），按空格开始。
+## 游戏中按 ESC 暂停，弹暂停菜单。
 
 ## 基准视口大小。实际视口会按屏幕尺寸调整成能整数整除的值，见 _fit_to_screen()。
 const BASE_SIZE := Vector2i(640, 360)
@@ -16,6 +19,9 @@ const LEVEL_SCENES := [
 
 var level: Node2D = null
 
+@onready var start_screen: CanvasLayer = $StartScreen
+@onready var pause_menu: CanvasLayer = $PauseMenu
+
 
 func _ready() -> void:
 	Audio.play_music()
@@ -25,6 +31,15 @@ func _ready() -> void:
 	# 不然循环播放的 MP3 会在退出日志里报 2 个对象泄漏。
 	get_tree().auto_accept_quit = false
 	load_level()
+
+	start_screen.start_pressed.connect(_on_start_pressed)
+	pause_menu.resume_requested.connect(_on_resume)
+	pause_menu.restart_requested.connect(_on_restart)
+	pause_menu.quit_requested.connect(_on_quit)
+
+	# 开场停在标题画面，游戏整体暂停
+	start_screen.show_start()
+	get_tree().paused = true
 
 
 ## 载入当前关卡。关卡节点统一叫 "Level"，方便外部按名字找。
@@ -79,9 +94,41 @@ func _unhandled_input(event: InputEvent) -> void:
 			if Game.next_level():
 				Game.reset_for_next_level()
 				load_level()
+	elif event.is_action_pressed("ui_cancel"):
+		# ESC 暂停
+		get_viewport().set_input_as_handled()
+		pause_menu.open()
+		get_tree().paused = true
 	elif event.is_action_pressed("toggle_fullscreen"):
 		get_viewport().set_input_as_handled()
 		var fs := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
 		DisplayServer.window_set_mode(
 			DisplayServer.WINDOW_MODE_WINDOWED if fs else DisplayServer.WINDOW_MODE_FULLSCREEN)
 		_fit_to_screen.call_deferred()
+
+
+# ---------------------------------------------------------------- 菜单回调
+
+## 标题画面按了空格。延后一帧再解除暂停，
+## 不然按空格的那一帧会被当成一次跳跃，角色开局就蹦一下。
+func _on_start_pressed() -> void:
+	get_tree().set_deferred("paused", false)
+
+
+func _on_resume() -> void:
+	pause_menu.close()
+	get_tree().paused = false
+
+
+func _on_restart() -> void:
+	pause_menu.close()
+	get_tree().paused = false
+	if Game.all_cleared or (Game.finished and not Game.cleared):
+		Game.level_index = 0
+	Game.reset()
+	load_level()
+
+
+func _on_quit() -> void:
+	Audio.stop_music()
+	get_tree().quit()

@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/start_screen.gd" id="1_start"]
+[ext_resource type="Theme" path="res://assets/ui/pixel_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_knight.png" id="3_knight"]
+
+[node name="StartScreen" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_start")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.05, 0.07, 0.8)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("2_theme")
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+theme_override_constants/separation = 6
+
+[node name="Knight" type="TextureRect" parent="Center/Box"]
+custom_minimum_size = Vector2(0, 58)
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+texture = ExtResource("3_knight")
+
+[node name="Title" type="Label" parent="Center/Box"]
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.84, 0.35, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 48
+text = "KNIGHT"
+horizontal_alignment = 1
+
+[node name="Prompt" type="Label" parent="Center/Box"]
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
+text = "PRESS SPACE TO START"
+horizontal_alignment = 1
+
+[node name="Controls" type="GridContainer" parent="Center/Box"]
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 2
+columns = 2

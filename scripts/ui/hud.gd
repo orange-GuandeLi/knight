@@ -20,7 +20,8 @@ const DANGER_TIME := 10.0
 @onready var combo_label: Label = $Row/Combo
 @onready var time_label: Label = $Row/Time
 @onready var score_label: Label = $Row/Score
-@onready var message: Label = $Message
+@onready var message_panel: PanelContainer = $MessagePanel
+@onready var message: Label = $MessagePanel/Message
 
 
 func _ready() -> void:
@@ -34,13 +35,13 @@ func _ready() -> void:
 	Game.level_cleared.connect(_on_cleared)
 	Game.all_levels_cleared.connect(_on_all_cleared)
 	Game.level_started.connect(_on_level_started)
-	message.text = ""
+	_set_message("")
 	_refresh()
 
 
 ## 换关 / 重开：把上一关的通关提示清掉，不然会挡住新一关的画面
 func _on_level_started() -> void:
-	message.text = ""
+	_set_message("")
 
 
 func _on_changed(_v: int) -> void:
@@ -86,14 +87,20 @@ func _format_time(seconds: float) -> String:
 	return "%d:%02d" % [t / 60, t % 60]
 
 
+## 中间提示。有字才显示面板，空的时候整个面板藏掉。
+func _set_message(text: String) -> void:
+	message.text = text
+	message_panel.visible = text != ""
+
+
 func _on_game_over() -> void:
-	message.text = "GAME OVER\nPRESS R TO RETRY"
+	_set_message("GAME OVER\nPRESS R TO RETRY")
 
 
 func _on_cleared() -> void:
 	var tail := "PRESS ENTER" if not Game.all_cleared else "PRESS R"
-	message.text = "LEVEL CLEAR!\nSCORE %d   %s" % [Game.score, tail]
+	_set_message("LEVEL CLEAR!\nSCORE %d   %s" % [Game.score, tail])
 
 
 func _on_all_cleared() -> void:
-	message.text = "ALL LEVELS CLEAR!\nSCORE %d   PRESS R" % Game.score
+	_set_message("ALL LEVELS CLEAR!\nSCORE %d   PRESS R" % Game.score)

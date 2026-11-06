@@ -1,0 +1,48 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="Theme" path="res://assets/ui/pixel_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_knight.png" id="3_knight"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+layer = 21
+script = ExtResource("1_pause")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.04, 0.05, 0.07, 0.8)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("2_theme")
+
+[node name="Box" type="VBoxContainer" parent="Center"]
+theme_override_constants/separation = 8
+
+[node name="Knight" type="TextureRect" parent="Center/Box"]
+custom_minimum_size = Vector2(0, 42)
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+texture = ExtResource("3_knight")
+
+[node name="Title" type="Label" parent="Center/Box"]
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(1, 0.84, 0.35, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 36
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="Menu" type="VBoxContainer" parent="Center/Box"]
+theme_override_constants/separation = 4
+
+[node name="Hint" type="Label" parent="Center/Box"]
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.7, 0.75, 0.85, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "UP / DOWN  SELECT      ENTER  CONFIRM      ESC  RESUME"
+horizontal_alignment = 1

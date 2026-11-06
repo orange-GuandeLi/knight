@@ -199,15 +199,27 @@ func _on_physics() -> void:
 		903:
 			Input.action_release("down")
 
+		# ---------- 关卡左边界 ----------
+		# 关卡左边是敞开的，不拦的话往回走会走出关卡掉进虚空。
+		# 910 开始：上一轮翻滚到 907 才停，不然会被带着往反方向冲。
+		910:
+			_teleport(20, GROUND_Y)
+			Input.action_press("move_left")
+		945:
+			Input.action_release("move_left")
+			_check("走不出关卡左边界",
+				absf(p.global_position.x - 5.0) < 1.0 and p.is_on_floor(),
+				"x=%.1f（应为 5，身体刚好卡在关卡内）" % p.global_position.x)
+
 		# ---------- 翻滚撞碎木箱 ----------
 		# 949 才开始：翻滚有 0.55 秒冷却，得等上一轮结束
-		950:
+		952:
 			_teleport(81 * 16 - 8, GROUND_Y)
 			Input.action_press("move_right")
-		956:
+		958:
 			Input.action_release("move_right")
 			Input.action_press("down")
-		980:
+		982:
 			Input.action_release("down")
 			_check("翻滚撞碎木箱", _key_at(Vector2i(81, 25)) == "",
 				"砖='%s'（应为已碎）" % _key_at(Vector2i(81, 25)))

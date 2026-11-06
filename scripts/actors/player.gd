@@ -57,6 +57,9 @@ const BOUNCE_VELOCITY := -210.0
 # 掉出关卡底部多少像素算摔死
 const DEATH_MARGIN := 120.0
 
+# 碰撞体宽 10，贴边时留一半在关卡里
+const BODY_HALF := 5.0
+
 # 感应用的物理层位（要和 tools/build_tileset.gd 里的一致）
 const LAYER_WATER := 4
 const LAYER_LADDER := 8
@@ -82,6 +85,8 @@ var wall_lock := 0.0
 var jumps_left := MAX_JUMPS
 var dead := false
 var level_bottom := 768.0
+var level_left := 0.0
+var level_right := 1920.0
 
 var _cur_anim := ""
 
@@ -99,7 +104,7 @@ func _physics_process(delta: float) -> void:
 
 	if dead:
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
-		move_and_slide()
+		_move_and_clamp()
 		return
 
 	_scan_sensors()
@@ -114,7 +119,7 @@ func _physics_process(delta: float) -> void:
 		hurt_time -= delta
 		velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
-		move_and_slide()
+		_move_and_clamp()
 		_update_anim()
 		return
 
@@ -140,7 +145,7 @@ func _physics_process(delta: float) -> void:
 			jumps_left = MAX_JUMPS - 1
 			Audio.play_sfx("jump")
 			_apply_gravity(delta, GRAVITY, MAX_FALL)
-			move_and_slide()
+			_move_and_clamp()
 			_update_anim()
 			return
 		velocity.x = 0.0
@@ -150,7 +155,7 @@ func _physics_process(delta: float) -> void:
 			velocity.y = CLIMB_SPEED
 		else:
 			velocity.y = 0.0
-		move_and_slide()
+		_move_and_clamp()
 		_update_anim()
 		return
 
@@ -178,7 +183,7 @@ func _physics_process(delta: float) -> void:
 		rolling = false
 		Audio.play_sfx("jump")
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
-		move_and_slide()
+		_move_and_clamp()
 		_update_anim()
 		return
 
@@ -249,7 +254,7 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta, GRAVITY, MAX_FALL)
 
 	var was_rising := velocity.y < 0.0
-	move_and_slide()
+	_move_and_clamp()
 
 	# 落地后才刷新跳跃次数。必须放在 move_and_slide 之后：
 	# 起跳那一帧 is_on_floor() 还是 true，放前面会把次数刷回满。
@@ -270,6 +275,16 @@ func _physics_process(delta: float) -> void:
 			velocity.y = 0.0
 
 	_update_anim()
+
+
+## 移动，并把角色关在关卡范围内。
+##
+## 关卡左右两边是敞开的（没有围墙），不拦的话往回走会走出关卡，
+## 脚下没砖就直接掉进虚空摔死。
+func _move_and_clamp() -> void:
+	move_and_slide()
+	global_position.x = clampf(global_position.x,
+		level_left + BODY_HALF, level_right - BODY_HALF)
 
 
 func _apply_gravity(delta: float, g: float, max_fall: float) -> void:

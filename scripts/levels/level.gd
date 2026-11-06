@@ -38,6 +38,7 @@ var grass: Array = []
 
 func _ready() -> void:
 	_load_data()
+	LevelBounds.LEFT = 0.0
 	LevelBounds.RIGHT = float(width * TILE)
 	LevelBounds.BOTTOM = float(height * TILE)
 
@@ -82,6 +83,9 @@ func _load_data() -> void:
 
 func _setup_player() -> void:
 	player.level_bottom = LevelBounds.BOTTOM
+	# 关卡左右是敞开的，告诉玩家边界在哪，免得走出关卡掉下去
+	player.level_left = LevelBounds.LEFT
+	player.level_right = LevelBounds.RIGHT
 	respawn_pos = Vector2(spawn.x * TILE + TILE / 2.0, spawn.y * TILE)
 	player.position = respawn_pos
 	player.head_bump.connect(_on_head_bump)

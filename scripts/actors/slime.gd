@@ -49,6 +49,12 @@ const VARIANTS := {
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var edge_ray: RayCast2D = $EdgeRay
+@onready var body_shape: CollisionShape2D = $Body
+
+## 史莱姆本体的碰撞尺寸（滚成球的时候要一起缩小）
+const BODY_SIZE := Vector2(11, 10)
+## 滚成球时缩到多少
+const ROLL_SCALE := 0.78
 
 var dir := 1
 var dead := false
@@ -103,11 +109,14 @@ func _physics_process(delta: float) -> void:
 		_roll_t -= delta
 		velocity.x = 0.0
 		var k := clampf(1.0 - _roll_t / ROLL_WINDUP, 0.0, 1.0)
-		sprite.scale = Vector2.ONE * (1.0 + 0.22 * k)
+		var grow := 1.0 + 0.22 * k
+		sprite.scale = Vector2.ONE * grow
+		_set_body_size(grow)
 		if _roll_t <= 0.0:
 			_roll_state = 2
 			_roll_t = ROLL_DURATION
-			sprite.scale = Vector2(0.78, 0.78)
+			sprite.scale = Vector2.ONE * ROLL_SCALE
+			_set_body_size(ROLL_SCALE)
 			Game.hitstop(2)
 			Audio.play_sfx("tap")
 	else:
@@ -178,7 +187,15 @@ func _stop_roll() -> void:
 	_roll_t = 0.0
 	sprite.rotation = 0.0
 	sprite.scale = Vector2.ONE
+	_set_body_size(1.0)
 	velocity.x = dir * speed
+
+
+## 缩放碰撞体，让判定框和看得见的球一样大
+func _set_body_size(k: float) -> void:
+	var rect := RectangleShape2D.new()
+	rect.size = BODY_SIZE * k
+	body_shape.shape = rect
 
 
 ## 紫史莱姆会跳：玩家靠得够近就朝他跳过来。

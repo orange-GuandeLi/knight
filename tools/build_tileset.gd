@@ -47,9 +47,7 @@ func _init() -> void:
 			var td := src.get_tile_data(coords, 0)
 			for layer in _physics_for(group, String(key)):
 				td.add_collision_polygon(layer)
-				# 碰撞多边形是相对砖中心的，所以是 -8..+8
-				td.set_collision_polygon_points(layer, 0, PackedVector2Array([
-					Vector2(-8, -8), Vector2(8, -8), Vector2(8, 8), Vector2(-8, 8)]))
+				td.set_collision_polygon_points(layer, 0, _collision_shape(group, String(key)))
 			n += 1
 		counts[group] = n
 
@@ -88,6 +86,41 @@ func _physics_for(group: String, key: String) -> Array:
 			# 桥 / 互动块 / 空块 / 木箱 都挡路
 			return [LAYER_WORLD]
 	return []
+
+
+## 碰撞多边形，相对砖中心（砖是 16x16，所以 -8..+8）。
+##
+## 默认用整块砖。桥是例外：它是悬空的绳桥，整块矩形会挡住画面里
+## 根本没画东西的地方，必须贴着绳面来。
+func _collision_shape(group: String, key: String) -> PackedVector2Array:
+	if group == "props" and key.begins_with("bridge_"):
+		return _bridge_shape(key)
+	return PackedVector2Array([
+		Vector2(-8, -8), Vector2(8, -8), Vector2(8, 8), Vector2(-8, 8)])
+
+
+## 绳桥的碰撞：一条贴着绳面的窄带，不是整块砖。
+##
+## 画面里每块桥砖画的是两段绳：
+## - start：左边是抬高的桥墩（顶在第 0 行），右边绳子落到第 2 行
+## - middle：两段绳子，顶面都在第 2 行
+## - end：左边绳子在第 2 行，右边是抬高的桥墩（第 0 行）
+##
+## 所以整条桥是个「两头高、中间低 2px」的浅弧：桥墩那端跟地面齐平，
+## 绳面比地面低 2px。碰撞就照这个画。
+func _bridge_shape(key: String) -> PackedVector2Array:
+	const ROPE := -6.0      # 绳面：砖的第 2 行
+	const BANK := -8.0      # 桥墩：砖的第 0 行，跟地面齐平
+	const BOTTOM := 0.0     # 绳底：砖的第 8 行
+	var left := ROPE
+	var right := ROPE
+	if key.ends_with("_start"):
+		left = BANK
+	elif key.ends_with("_end"):
+		right = BANK
+	return PackedVector2Array([
+		Vector2(-8, left), Vector2(8, right),
+		Vector2(8, BOTTOM), Vector2(-8, BOTTOM)])
 
 
 func _read_index() -> Dictionary:

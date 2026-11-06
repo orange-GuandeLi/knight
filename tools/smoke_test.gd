@@ -239,34 +239,52 @@ func _on_physics() -> void:
 				"combo=%d 倍率=%d" % [Game.combo, maxi(1, Game.combo)])
 
 		# ---------- 检查点 ----------
+		# ---------- 桥面碰撞跟着画面 ----------
+		# 关卡1 的泥土桥在 27~33 列：中间是绳面（第 2 行，比地面低 2px），
+		# 两头是抬高的桥墩（跟地面齐平）。桥墩那端是斜坡。
 		1090:
+			_teleport(29 * 16 + 8, 300)           # 桥中间那块的正上方
+		1140:
+			_check("桥面贴着绳面", absf(p.global_position.y - (26 * 16 + 2)) < 1.5,
+				"桥上 y=%.1f（绳面 %.0f，地面 %.0f）"
+				% [p.global_position.y, 26 * 16 + 2, 26 * 16])
+		1150:
+			_teleport(27 * 16 + 2, 300)           # 桥墩那端（斜坡）
+		1200:
+			_check("桥头是斜坡不是直墙", p.global_position.y <= 26 * 16 + 3.0
+					and p.global_position.y >= 26 * 16 - 1.0,
+				"桥头 y=%.1f（地面 %.0f ~ 绳面 %.0f 之间）"
+				% [p.global_position.y, 26 * 16, 26 * 16 + 2])
+
+		# ---------- 检查点 ----------
+		1210:
 			_teleport(65 * 16 + 8, GROUND_Y)     # 走到检查点木牌上
-		1110:
+		1230:
 			cp_x = level.respawn_pos.x
 			_check("碰到检查点就激活", absf(cp_x - (65 * 16 + 8)) < 2.0,
 				"复活点 x=%.0f（应为 %d）" % [cp_x, 65 * 16 + 8])
 
 		# ---------- 从检查点复活 ----------
-		1120:
+		1240:
 			_teleport(15 * 16 + 8, 920)           # 再摔一次
-		1255:
+		1375:
 			_check("从检查点复活", (not p.dead) and absf(p.global_position.x - cp_x) < 8.0,
 				"pos=(%.0f,%.0f)（检查点 x=%.0f）" % [p.global_position.x, p.global_position.y, cp_x])
 
 		# ---------- 倒计时 ----------
-		1265:
+		1385:
 			_check("关卡有倒计时", Game.time_left > 0.0, "剩 %.0f 秒" % Game.time_left)
 			_check("HUD 显示倒计时", hud.time_label.visible and hud.time_label.text.contains(":"),
 				"时间文本 '%s'" % hud.time_label.text)
 
 		# ---------- 通关后进下一关 ----------
-		1275:
+		1395:
 			# Input.action_press 不会产生事件，得走正常输入管线
 			var ev := InputEventKey.new()
 			ev.physical_keycode = KEY_ENTER
 			ev.pressed = true
 			Input.parse_input_event(ev)
-		1295:
+		1415:
 			_refresh_nodes()
 			_check("通关后进下一关", Game.level_index == 1,
 				"level_index=%d" % Game.level_index)
@@ -276,26 +294,26 @@ func _on_physics() -> void:
 				"提示='%s'" % hud.get_node("Message").text.replace("\n", " / "))
 
 		# ---------- 墙跳（第 3 关的竖井）----------
-		1300:
+		1420:
 			Game.level_index = 2
 			main.load_level()
 			_refresh_nodes()
 			_teleport(61 * 16 + 2, GROUND_Y)     # 贴着左墙站
 			Input.action_press("move_left")
-		1310:
+		1430:
 			Input.action_press("jump")
-		1330:
+		1450:
 			Input.action_release("jump")
 			_check("贴墙下滑", p.wall_dir == -1 and p.velocity.y <= 60.0,
 				"wall_dir=%d vy=%.1f" % [p.wall_dir, p.velocity.y])
-		1340:
+		1460:
 			Input.action_press("jump")           # 蹬墙跳
 			wall_vx = 0.0
-		1345:
+		1465:
 			wall_vx = maxf(wall_vx, p.velocity.x)
-		1350:
+		1470:
 			wall_vx = maxf(wall_vx, p.velocity.x)
-		1355:
+		1475:
 			Input.action_release("jump")
 			# 蹬墙后有 0.14 秒锁向，之后松手会被减速，所以取最高速
 			_check("墙跳蹬出去", wall_vx > 100.0,
@@ -303,7 +321,7 @@ func _on_physics() -> void:
 		1360:
 			Input.action_release("move_left")
 
-		1400:
+		1500:
 			print("\n===== 冒烟测试 =====")
 			var ok := 0
 			for r in results:

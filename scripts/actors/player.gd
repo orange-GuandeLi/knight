@@ -94,6 +94,9 @@ var dash_dir := 1           # 冲刺方向
 var dash_ready := true      # 滞空期间只能用一次冲刺，落地恢复
 var bonus_jumps := 0        # 蘑菇给的额外跳跃次数
 var shield := 0.0           # 水果给的护盾剩余时间
+var _shake := 0.0           # 震屏强度
+var _squash := Vector2.ONE  # 精灵的挤压比例
+var _was_on_floor := true
 var in_water := false
 var on_ice := false
 var on_snow := false
@@ -121,6 +124,8 @@ func _physics_process(delta: float) -> void:
 	roll_cd = maxf(0.0, roll_cd - delta)
 	wall_lock = maxf(0.0, wall_lock - delta)
 	momentum = maxf(0.0, momentum - delta)
+	_apply_squash()
+	_update_shake(delta)
 
 	if dead:
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
@@ -289,6 +294,7 @@ func _physics_process(delta: float) -> void:
 			momentum = ROLL_MOMENTUM
 		else:
 			velocity.y = jump_v
+		_squash_to(0.84, 1.16)      # 起跳：拉长
 		Audio.play_sfx("jump")
 
 	# 可变跳跃高度：还在上升却没按住跳跃键，就把上升速度砍掉
@@ -302,16 +308,22 @@ func _physics_process(delta: float) -> void:
 
 	# 落地后才刷新跳跃次数。必须放在 move_and_slide 之后：
 	# 起跳那一帧 is_on_floor() 还是 true，放前面会把次数刷回满。
-	if is_on_floor():
+	var on_floor_now := is_on_floor()
+	if on_floor_now:
 		coyote = COYOTE_TIME
 		jumps_left = MAX_JUMPS
 		bonus_jumps = 0            # 蘑菇给的额外跳跃，落地就没了
 		dash_ready = true          # 落地恢复空中冲刺
+		# 落地：压扁一下。踩怪连踩也在这一刻清零。
+		if not _was_on_floor:
+			_squash_to(1.22, 0.78)
+			Game.stomp_chain = 0
 	else:
 		coyote = maxf(0.0, coyote - delta)
 		# 走着掉下平台、没用地面跳的，空中只剩一段
 		if coyote <= 0.0 and jumps_left == MAX_JUMPS:
 			jumps_left = MAX_JUMPS - 1 + bonus_jumps
+	_was_on_floor = on_floor_now
 
 	# 顶到天花板 -> 通知关卡（撞问号块）
 	if was_rising and is_on_ceiling():
@@ -393,6 +405,38 @@ func is_shielded() -> bool:
 
 func grant_shield(seconds: float) -> void:
 	shield = maxf(shield, seconds)
+
+
+## 震屏。amount 是像素强度。
+func add_shake(amount: float) -> void:
+	_shake = maxf(_shake, amount)
+
+
+func _update_shake(delta: float) -> void:
+	if _shake <= 0.0:
+		return
+	var cam := get_node_or_null("Camera2D") as Camera2D
+	if cam == null:
+		_shake = 0.0
+		return
+	_shake = maxf(0.0, _shake - delta * 42.0)
+	cam.offset = Vector2(
+		randf_range(-_shake, _shake), randf_range(-_shake, _shake))
+
+
+## 挤压 / 拉伸。sx 横向比例，sy 纵向比例。
+func _squash_to(sx: float, sy: float) -> void:
+	_squash = Vector2(sx, sy)
+	var tw := create_tween()
+	tw.tween_property(self, "_squash", Vector2(sx, sy), 0.05)
+	tw.tween_property(self, "_squash", Vector2.ONE, 0.13)
+
+
+## 把挤压比例套到精灵上。
+## 缩放要绕着脚底，所以 offset 也要跟着缩放，不然人会飘。
+func _apply_squash() -> void:
+	sprite.scale = _squash
+	sprite.offset = Vector2(1.0 * _squash.x, -11.0 * _squash.y)
 
 
 # ---------------------------------------------------------------- 受伤 / 死亡

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/objects/score_popup.gd" id="1_popup"]
+[ext_resource type="Theme" path="res://assets/ui/pixel_theme.tres" id="2_theme"]
+
+[node name="ScorePopup" type="Label"]
+z_index = 5
+offset_right = 60.0
+offset_bottom = 16.0
+theme = ExtResource("2_theme")
+theme_override_colors/font_color = Color(1, 0.9, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0.09, 0.11, 0.13, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 14
+text = "+200"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("1_popup")

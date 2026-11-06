@@ -23,6 +23,7 @@ var slimes_before := 0
 var climb_y := 0.0
 var ice_vx := 0.0
 var wall_vx := 0.0
+var ps_vy := 0.0
 var cp_x := 0.0
 var _seq_done := false
 
@@ -139,6 +140,10 @@ func _on_physics() -> void:
 		115:
 			_start_track()
 			Input.action_press("jump")
+		118:
+			# 起跳瞬间精灵要被拉长
+			_check("起跳有拉伸挤压", p.sprite.scale.x < 0.95,
+				"scale=%.2f,%.2f" % [p.sprite.scale.x, p.sprite.scale.y])
 		120:
 			Input.action_release("jump")
 		175:
@@ -246,6 +251,23 @@ func _on_physics() -> void:
 				msg = hud.message.text
 			_check("HUD 显示通关文字", msg.contains("CLEAR"), "message=%s" % msg.replace("\n", " / "))
 
+		# ---------- 踩怪连踩 ----------
+		900:
+			Game.bump_stomp_chain()
+			Game.bump_stomp_chain()
+			_check("踩怪连踩能累计", Game.stomp_chain == 2,
+				"chain=%d" % Game.stomp_chain)
+			Game.stomp_chain = 0
+
+		# ---------- 顿帧 ----------
+		905:
+			Game.hitstop(3)
+			_check("顿帧生效", Engine.time_scale < 1.0,
+				"time_scale=%.3f" % Engine.time_scale)
+		940:
+			_check("顿帧会自己恢复", Engine.time_scale == 1.0,
+				"time_scale=%.3f" % Engine.time_scale)
+
 		# ---------- 地面翻滚冲刺 ----------
 		880:
 			_teleport(20 * 16 + 8, GROUND_Y)
@@ -328,6 +350,23 @@ func _on_physics() -> void:
 				"桥头 y=%.1f（地面 %.0f ~ 绳面 %.0f 之间）"
 				% [p.global_position.y, 26 * 16, 26 * 16 + 2])
 
+		# ---------- 紫史莱姆会跳 ----------
+		1160:
+			ps_vy = 0.0
+		1165:
+			_follow_purple_slime()
+			ps_vy = _min_vy(ps_vy)
+		1170:
+			_follow_purple_slime()
+			ps_vy = _min_vy(ps_vy)
+		1175:
+			_follow_purple_slime()
+			ps_vy = _min_vy(ps_vy)
+		1180:
+			_follow_purple_slime()
+			ps_vy = _min_vy(ps_vy)
+			_check("紫史莱姆会跳扑过来", ps_vy < -40.0, "最低 vy=%.1f" % ps_vy)
+
 		# ---------- 检查点 ----------
 		1210:
 			_teleport(65 * 16 + 8, GROUND_Y)     # 走到检查点木牌上
@@ -368,6 +407,8 @@ func _on_physics() -> void:
 		# ---------- 雪地（第 2 关 102~112 列）----------
 		# 雪地不是打滑：走得慢、跳得矮，但能刹住
 		1425:
+			# 给个护盾，免得附近会跳的紫史莱姆把角色撞飞，影响测速
+			p.grant_shield(30.0)
 			_teleport(103 * 16 + 8, GROUND_Y)
 			Input.action_press("move_right")
 		1450:
@@ -445,6 +486,30 @@ func _key_at(cell: Vector2i) -> String:
 func _first_slime() -> Slime:
 	for c in entities.get_children():
 		if c is Slime:
+			return c
+	return null
+
+
+## 站到紫史莱姆旁边，逼它跳起来
+func _follow_purple_slime() -> void:
+	var ps := _first_purple_slime()
+	if ps == null:
+		return
+	p.global_position = Vector2(ps.global_position.x - 50.0, GROUND_Y)
+	p.velocity = Vector2.ZERO
+
+
+## 记录紫史莱姆在窗口里的最小竖直速度（它跳起来又落下，只看某一帧会漏）
+func _min_vy(cur: float) -> float:
+	var ps := _first_purple_slime()
+	if ps == null:
+		return cur
+	return minf(cur, ps.velocity.y)
+
+
+func _first_purple_slime() -> Slime:
+	for c in entities.get_children():
+		if c is Slime and (c as Slime).variant == "purple":
 			return c
 	return null
 

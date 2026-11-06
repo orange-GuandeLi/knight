@@ -7,6 +7,10 @@ const COIN_SCENE := preload("res://scenes/objects/Coin.tscn")
 const SLIME_SCENE := preload("res://scenes/actors/Slime.tscn")
 const PICKUP_SCENE := preload("res://scenes/objects/Pickup.tscn")
 const CHECKPOINT_SCENE := preload("res://scenes/objects/Checkpoint.tscn")
+const DEBRIS_SCENE := preload("res://scenes/objects/Debris.tscn")
+
+## 碎块颜色，跟地形色板一致
+const DIRT_COLOR := Color(0xB6, 0x6B, 0x3A)
 
 const TILE := 16
 const CLEAR_COL := 4             # 离右边界还剩几列就算通关
@@ -204,12 +208,14 @@ func _spawn_entities() -> void:
 				"slime":
 					var slime := SLIME_SCENE.instantiate()
 					slime.position = Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+					slime.target = player
 					entities.add_child(slime)
 					slimes += 1
 				"slime_purple":
 					var slime2 := SLIME_SCENE.instantiate()
 					slime2.variant = "purple"
 					slime2.position = Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+					slime2.target = player
 					entities.add_child(slime2)
 					purple += 1
 				"checkpoint":
@@ -258,7 +264,10 @@ func _on_head_bump(world_pos: Vector2) -> void:
 func _bump(cell: Vector2i, key: String) -> void:
 	_put(terrain, cell, key + "_used")
 	Game.add_score(20)
+	Game.hitstop(2)
 	Audio.play_sfx("tap")
+	_spawn_debris(Vector2(cell.x * TILE + TILE / 2.0, cell.y * TILE), DIRT_COLOR, 6, 90.0)
+	player.add_shake(1.6)
 
 	var kind := "mushroom" if key.ends_with("_question") else "potion"
 	var p := PICKUP_SCENE.instantiate()
@@ -284,12 +293,24 @@ func _on_roll_strike(world_pos: Vector2) -> void:
 func _break_crate(cell: Vector2i) -> void:
 	terrain.erase_cell(cell)
 	Game.score_with_combo(50)
+	Game.hitstop(3)
 	Audio.play_sfx("explosion")
+	_spawn_debris(Vector2(cell.x * TILE + TILE / 2.0, cell.y * TILE + TILE / 2.0),
+		DIRT_COLOR, 10, 150.0)
+	player.add_shake(3.2)
 	# 一半概率掉一枚金币
 	if randf() < 0.5:
 		var coin := COIN_SCENE.instantiate()
 		coin.position = Vector2(cell.x * TILE + TILE / 2.0, cell.y * TILE + TILE / 2.0)
 		entities.add_child(coin)
+
+
+## 撒一把碎块
+func _spawn_debris(world_pos: Vector2, color: Color, count: int, speed: float = 130.0) -> void:
+	var d := DEBRIS_SCENE.instantiate()
+	d.position = world_pos
+	d.setup(color, count, speed)
+	entities.add_child(d)
 
 
 ## 碰到检查点：把复活点挪过来

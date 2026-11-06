@@ -33,6 +33,6 @@ position = Vector2(0, -7)
 shape = SubResource("RectangleShape2D_hurt")
 
 [node name="EdgeRay" type="RayCast2D" parent="."]
-position = Vector2(7, -3)
-target_position = Vector2(0, 12)
+position = Vector2(10, -2)
+target_position = Vector2(0, 16)
 collision_mask = 1

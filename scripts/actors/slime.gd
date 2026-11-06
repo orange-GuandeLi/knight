@@ -8,6 +8,21 @@ extends CharacterBody2D
 const GRAVITY := 720.0
 const MAX_FALL := 340.0
 
+const DEBRIS_SCENE := preload("res://scenes/objects/Debris.tscn")
+const POPUP_SCENE := preload("res://scenes/objects/ScorePopup.tscn")
+
+## 每种史莱姆的碎块颜色
+const VARIANT_COLORS := {
+	"green": Color(0xBA, 0xD2, 0x00),
+	"purple": Color(0xB7, 0x3D, 0x94),
+}
+
+## 会跳的敌人：玩家靠近就起跳扑过来
+const JUMPING_VARIANTS := ["purple"]
+const JUMP_TRIGGER_DIST := 72.0
+const JUMP_VELOCITY := -235.0
+const JUMP_COOLDOWN := 1.5
+
 const FRAMES := {
 	"green": preload("res://assets/sprites/slime/slime_green_frames.tres"),
 	"purple": preload("res://assets/sprites/slime/slime_purple_frames.tres"),
@@ -29,6 +44,8 @@ var dir := 1
 var dead := false
 var speed := 30.0
 var score_value := 200
+var target: Player = null       # 关卡生成时塞进来的玩家
+var _jump_cd := 0.0
 
 
 func _ready() -> void:
@@ -46,10 +63,16 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
+	_jump_cd = maxf(0.0, _jump_cd - delta)
+
 	if not is_on_floor():
 		velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL)
 	else:
 		velocity.y = 0.0
+
+	# 起跳要放在上面那段之后：站着的时候 velocity.y 会被清零，
+	# 放在前面就等于跳不起来
+	_try_jump()
 
 	velocity.x = dir * speed
 	move_and_slide()
@@ -57,14 +80,19 @@ func _physics_process(delta: float) -> void:
 	# 撞墙掉头
 	if is_on_wall():
 		_turn()
-	# 平台边缘掉头：前脚下探不到地面就掉头
-	edge_ray.position = Vector2(dir * 7.0, -3.0)
+	# 平台边缘掉头：前脚下探不到地面就掉头。
+	# 探针要够远够深，不然在冰面上会走出自己的平台。
+	edge_ray.position = Vector2(dir * 10.0, -2.0)
 	edge_ray.force_raycast_update()
 	if is_on_floor() and not edge_ray.is_colliding():
 		_turn()
 	# 走到关卡边界也要掉头
 	if global_position.x < 8.0 or global_position.x > (LevelBounds.RIGHT - 8.0):
 		_turn()
+	# 掉出关卡就没了（敌人不会死，但也不能一直往下掉）
+	if global_position.y > LevelBounds.BOTTOM + 60.0:
+		queue_free()
+		return
 
 	sprite.flip_h = dir < 0
 
@@ -73,6 +101,24 @@ func _turn() -> void:
 	dir = -dir
 	velocity.x = dir * speed
 	sprite.flip_h = dir < 0
+
+
+## 紫史莱姆会跳：玩家靠得够近就朝他跳过来。
+## 绿史莱姆老老实实巡逻。
+func _try_jump() -> void:
+	if variant not in JUMPING_VARIANTS:
+		return
+	if not is_on_floor() or _jump_cd > 0.0:
+		return
+	if target == null or target.dead:
+		return
+	var dx := target.global_position.x - global_position.x
+	if absf(dx) > JUMP_TRIGGER_DIST:
+		return
+	dir = 1 if dx > 0.0 else -1
+	sprite.flip_h = dir < 0
+	velocity.y = JUMP_VELOCITY
+	_jump_cd = JUMP_COOLDOWN
 
 
 func _on_body_entered(body: Node2D) -> void:
@@ -86,27 +132,55 @@ func _on_body_entered(body: Node2D) -> void:
 	var stomping := player.velocity.y > 20.0 and player.global_position.y < global_position.y - 3.0
 	if stomping:
 		player.bounce()
-		squash()
+		squash(player)
 	elif player.is_rolling():
 		# 翻滚撞上去也算击杀
 		player.bounce()
-		squash()
+		squash(player)
 	elif player.is_shielded():
 		# 有护盾：直接撞碎，角色不受影响
-		squash()
+		squash(player)
 	else:
 		player.take_damage(global_position.x)
 
 
-func squash() -> void:
+func squash(p: Player = null) -> void:
 	if dead:
 		return
 	dead = true
-	Game.score_with_combo(score_value)
+	# 踩怪连踩：滞空期间接着踩下一只，倍率往上翻
+	var chain := Game.bump_stomp_chain()
+	var gained := score_value * chain
+	Game.add_score(gained)
+	Game.hitstop(3)
 	Audio.play_sfx("explosion")
+	_spawn_debris()
+	_spawn_popup(gained, chain)
+	if p != null:
+		p.add_shake(2.5)
 	collision_layer = 0
 	collision_mask = 0
 	hurtbox.set_deferred("monitoring", false)
 	sprite.play(&"melt")
 	await sprite.animation_finished
 	queue_free()
+
+
+## 飘起来的加分提示
+func _spawn_popup(gained: int, chain: int) -> void:
+	var pop := POPUP_SCENE.instantiate()
+	pop.text = "+%d" % gained
+	if chain >= 2:
+		pop.text = "x%d  +%d" % [chain, gained]
+		pop.add_theme_font_size_override("font_size", 18)
+		pop.add_theme_color_override("font_color", Color(1, 0.72, 0.25))
+	pop.position = global_position + Vector2(-30.0, -20.0)
+	get_parent().add_child(pop)
+
+
+## 踩碎的渣子
+func _spawn_debris() -> void:
+	var d := DEBRIS_SCENE.instantiate()
+	d.position = global_position
+	d.setup(VARIANT_COLORS.get(variant, VARIANT_COLORS["green"]), 8, 120.0)
+	get_parent().add_child(d)

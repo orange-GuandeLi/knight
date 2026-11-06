@@ -24,6 +24,9 @@ const LEVEL_COUNT := 3
 const COMBO_WINDOW := 2.0      # 两次之间最多隔这么久（秒）
 const COMBO_MAX := 9           # 倍率上限
 
+# 顿帧：把整个游戏的时间缩到几乎不动，给打击感加料
+const HITSTOP_SCALE := 0.04
+
 var score := 0
 var lives := START_LIVES
 var health := MAX_HEALTH
@@ -37,9 +40,19 @@ var over := false              # 彻底结束（失败），不能再复活
 var cleared := false           # 当前这关通关了
 var all_cleared := false       # 全部关卡都过了
 var level_index := 0           # 当前关卡序号（0 起）
+var stomp_chain := 0           # 踩怪连踩的连击数，落地清零
+var _hitstop_until := 0        # 顿帧到第几个物理帧
 
 
 func _process(delta: float) -> void:
+	# 顿帧：冻结几帧再恢复
+	if _hitstop_until > 0:
+		if Engine.get_physics_frames() >= _hitstop_until:
+			_hitstop_until = 0
+			Engine.time_scale = 1.0
+		else:
+			Engine.time_scale = HITSTOP_SCALE
+
 	# 连击断线
 	if combo > 0:
 		combo_timer -= delta
@@ -68,6 +81,9 @@ func reset() -> void:
 	over = false
 	cleared = false
 	all_cleared = false
+	stomp_chain = 0
+	_hitstop_until = 0
+	Engine.time_scale = 1.0
 	# 重置也走信号，订阅方（HUD）不用自己去拉状态
 	score_changed.emit(score)
 	lives_changed.emit(lives)
@@ -111,6 +127,19 @@ func next_level() -> bool:
 func add_score(v: int) -> void:
 	score += v
 	score_changed.emit(score)
+
+
+## 顿帧：整个游戏冻结几帧。踩怪、砸箱子、顶砖的时候用。
+func hitstop(frames: int = 3) -> void:
+	_hitstop_until = Engine.get_physics_frames() + frames
+	Engine.time_scale = HITSTOP_SCALE
+
+
+## 踩怪连踩：连续踩中不同的怪，倍率往上翻。落地就清零。
+## 跟「连击」的区别：连击看时间窗口，这个看滞空——踩一只弹起来再踩下一只就翻倍。
+func bump_stomp_chain() -> int:
+	stomp_chain = mini(stomp_chain + 1, 8)
+	return stomp_chain
 
 
 ## 加分并累计连击。倍率从 1 起算，断连后重新来。

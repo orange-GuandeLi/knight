@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""生成关卡数据 scripts/levels/level01_data.gd。
+"""生成关卡数据 scenes/levels/level01.json。
 
 地图是 120x48 的字符网格，每格一个字符。脚本负责把地面、坑、桥、梯子、
-互动块、木箱、史莱姆这些摆进去，输出成 GDScript 常量。
+互动块、木箱、史莱姆这些摆进去，输出成 JSON（关卡运行时读这个文件铺砖）。
 
 改关卡 = 改这个脚本，然后重跑。
 

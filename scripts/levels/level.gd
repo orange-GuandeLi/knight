@@ -1,5 +1,5 @@
 extends Node2D
-## 关卡 01：按 level01_data.gd 里的字符地图铺砖、生成实体。
+## 关卡 01：按 level01.json 里的字符地图铺砖、生成实体。
 
 const DATA_PATH := "res://scenes/levels/level01.json"
 
@@ -33,8 +33,7 @@ func _ready() -> void:
 	LevelBounds.RIGHT = float(width * TILE)
 	LevelBounds.BOTTOM = float(height * TILE)
 
-	Game.health = Game.MAX_HEALTH
-	Game.health_changed.emit(Game.health)
+	Game.set_health(Game.MAX_HEALTH)
 
 	_setup_player()
 	_paint_background()
@@ -42,8 +41,7 @@ func _ready() -> void:
 	_paint_decor()
 	_spawn_entities()
 
-	Game.total_coins = _count_char("o")
-	Game.coins_changed.emit(Game.coins, Game.total_coins)
+	Game.set_total_coins(_count_char("o"))
 
 
 ## 把关卡数据从 json 读进来
@@ -249,6 +247,5 @@ func _on_player_died() -> void:
 
 ## 原地复活：世界状态（吃过的金币、顶过的块）保留
 func _respawn() -> void:
-	Game.health = Game.MAX_HEALTH
-	Game.health_changed.emit(Game.health)
+	Game.set_health(Game.MAX_HEALTH)
 	player.respawn(Vector2(spawn.x * TILE + TILE / 2.0, spawn.y * TILE))

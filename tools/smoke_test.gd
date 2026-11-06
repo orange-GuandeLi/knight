@@ -145,7 +145,7 @@ func _on_physics() -> void:
 
 		# ---------- 摔死 -> 扣命 -> 原地复活 ----------
 		660:
-			Game.lives = 3
+			Game.set_lives(3)
 			_teleport(15 * 16 + 8, 920)
 		750:
 			_check("掉坑摔死扣命", Game.lives == 2, "命=%d" % Game.lives)
@@ -155,8 +155,7 @@ func _on_physics() -> void:
 
 		# ---------- HUD ----------
 		800:
-			Game.health = 1
-			Game.health_changed.emit(1)
+			Game.set_health(1)
 			var hs: Array = hud.hearts
 			var full := String(hs[0].texture.resource_path).contains("full")
 			var e1 := String(hs[1].texture.resource_path).contains("empty")
@@ -164,6 +163,8 @@ func _on_physics() -> void:
 			_check("HUD 爱心随血量变化", full and e1 and e2, "血1 -> 实心/空心")
 			_check("HUD 命数显示", hud.lives_label.text == "x%d" % Game.lives,
 				"命文本 '%s'" % hud.lives_label.text)
+			_check("HUD 金币计数", hud.coins_label.text == "%d/%d" % [Game.coins, Game.total_coins],
+				"金币文本 '%s'" % hud.coins_label.text)
 
 		# ---------- 通关 ----------
 		810:

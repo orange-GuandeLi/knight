@@ -49,11 +49,16 @@ func _ready() -> void:
 	var start_screen: CanvasLayer = main.get_node("StartScreen")
 	_check("开场显示标题画面", start_screen.visible and get_tree().paused,
 		"visible=%s paused=%s" % [start_screen.visible, get_tree().paused])
+	# 关卡加载完不该有任何音效。之前落石用计时器触发，
+	# 计时器在暂停时照样走，于是标题画面那一会儿石头就砸完了，一进游戏就听见爆炸。
+	_check("开场没有音效", Audio.sfx_log.is_empty(),
+		"播放过：%s" % ", ".join(Audio.sfx_log))
 	_press_key(KEY_SPACE)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_check("标题画面按空格开始", (not start_screen.visible) and (not get_tree().paused),
 		"visible=%s paused=%s" % [start_screen.visible, get_tree().paused])
+	Audio.sfx_log.clear()
 
 	get_tree().physics_frame.connect(_on_physics)
 	# 等按物理帧计数的主流程跑完

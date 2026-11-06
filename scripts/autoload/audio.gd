@@ -25,6 +25,9 @@ const INTENSITY := [
 	{"pitch": 1.0, "db": -18.0},   # 通关：轻一点
 ]
 
+## 播过的音效名字，只用来自测时检查「开局有没有声音」。
+var sfx_log: Array[String] = []
+
 var _pool: Array[AudioStreamPlayer] = []
 var _music: AudioStreamPlayer
 var _music_stream: AudioStream = null
@@ -61,6 +64,7 @@ func _exit_tree() -> void:
 
 ## 播放一个音效，名字见 SFX 表的键
 func play_sfx(sfx_name: String) -> void:
+	sfx_log.append(sfx_name)
 	if not SFX.has(sfx_name):
 		push_warning("没有这个音效：%s" % sfx_name)
 		return

@@ -377,10 +377,9 @@ func _spawn_rocks() -> void:
 		rock.position = Vector2(float(x) * TILE + TILE * 0.5, float(top_rows) * TILE)
 		entities.add_child(rock)
 		rock.setup(Vector2(float(x) * TILE + TILE * 0.5, 0.0), Vector2(0.0, ground_y))
+		rock.player = player
 		rock.hit_player.connect(_on_rock_hit)
-		# 延迟开始
-		var timer := get_tree().create_timer(delay)
-		timer.timeout.connect(rock.start_falling)
+		rock.cooldown = delay
 
 
 ## BOSS

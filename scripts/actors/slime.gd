@@ -2,11 +2,24 @@ class_name Slime
 extends CharacterBody2D
 ## 史莱姆：来回巡逻，撞墙或到平台边缘就掉头。
 ## 被踩会压扁融化；从侧面碰到玩家会让玩家受伤。
+##
+## 两种颜色：绿的是普通兵，紫的更快更值钱。
 
-const SPEED := 30.0
 const GRAVITY := 720.0
 const MAX_FALL := 340.0
-const STOMP_SCORE := 200
+
+const FRAMES := {
+	"green": preload("res://assets/sprites/slime/slime_green_frames.tres"),
+	"purple": preload("res://assets/sprites/slime/slime_purple_frames.tres"),
+}
+
+## 每种史莱姆的手感参数
+const VARIANTS := {
+	"green": {"speed": 30.0, "score": 200},
+	"purple": {"speed": 52.0, "score": 300},
+}
+
+@export_enum("green", "purple") var variant := "green"
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var hurtbox: Area2D = $Hurtbox
@@ -14,9 +27,15 @@ const STOMP_SCORE := 200
 
 var dir := 1
 var dead := false
+var speed := 30.0
+var score_value := 200
 
 
 func _ready() -> void:
+	var v: Dictionary = VARIANTS.get(variant, VARIANTS["green"])
+	speed = float(v["speed"])
+	score_value = int(v["score"])
+	sprite.sprite_frames = FRAMES[variant]
 	sprite.play(&"idle")
 	hurtbox.body_entered.connect(_on_body_entered)
 
@@ -32,7 +51,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = 0.0
 
-	velocity.x = dir * SPEED
+	velocity.x = dir * speed
 	move_and_slide()
 
 	# 撞墙掉头
@@ -52,7 +71,7 @@ func _physics_process(delta: float) -> void:
 
 func _turn() -> void:
 	dir = -dir
-	velocity.x = dir * SPEED
+	velocity.x = dir * speed
 	sprite.flip_h = dir < 0
 
 
@@ -80,7 +99,7 @@ func squash() -> void:
 	if dead:
 		return
 	dead = true
-	Game.add_score(STOMP_SCORE)
+	Game.add_score(score_value)
 	Audio.play_sfx("explosion")
 	collision_layer = 0
 	collision_mask = 0

@@ -1,14 +1,19 @@
 class_name Player
 extends CharacterBody2D
-## 骑士。跑、跳、翻滚跳、游泳、爬梯、受伤、死亡。
+## 骑士。跑、跳、翻滚跳、地面翻滚冲刺、游泳、爬梯、墙跳、受伤、死亡。
 
 signal head_bump(world_position: Vector2)
 signal died()
+## 地面翻滚时每帧发出，位置在身前一点。关卡用它判断有没有撞到木箱。
+signal roll_strike(world_position: Vector2)
 
 # --- 手感参数（16px 一格）---
 const SPEED := 110.0
 const ACCEL := 800.0
 const FRICTION := 1000.0
+# 冰上：起步慢、几乎不减速，一脚踩上去刹不住
+const ICE_ACCEL := 340.0
+const ICE_FRICTION := 70.0
 const JUMP_VELOCITY := -262.0
 const ROLL_JUMP_VELOCITY := -300.0
 # 可变跳跃高度：上升途中松开跳跃键，上升速度最多保留到这个值（越接近 0 跳得越矮）
@@ -27,9 +32,21 @@ const WATER_SWIM := -70.0
 
 const CLIMB_SPEED := 58.0
 
+# 地面翻滚：站着按 ↓ 起滚，速度锁定不能转向
 const ROLL_TIME := 0.34
 const ROLL_SPEED := 175.0
 const ROLL_COOLDOWN := 0.55
+# 滚完之后留一点惯性，不然会像撞墙一样硬停
+const ROLL_EXIT_SPEED := 0.45
+# 翻滚跳之后保留水平速度的时间，这期间不减速也不转向
+const ROLL_MOMENTUM := 0.22
+
+# 墙跳：贴墙下滑 + 按跳蹬出去
+const WALL_SLIDE_SPEED := 52.0
+const WALL_JUMP_X := 145.0
+const WALL_JUMP_Y := -235.0
+# 蹬墙后短暂锁住方向，不然会马上又贴回墙上
+const WALL_LOCK := 0.14
 
 const INVULN_TIME := 1.3
 const HURT_TIME := 0.28
@@ -40,6 +57,11 @@ const BOUNCE_VELOCITY := -210.0
 # 掉出关卡底部多少像素算摔死
 const DEATH_MARGIN := 120.0
 
+# 感应用的物理层位（要和 tools/build_tileset.gd 里的一致）
+const LAYER_WATER := 4
+const LAYER_LADDER := 8
+const LAYER_ICE := 16
+
 @onready var sprite: AnimatedSprite2D = $Sprite
 
 var facing := 1
@@ -49,9 +71,14 @@ var invuln := 0.0
 var hurt_time := 0.0
 var roll_time := 0.0
 var roll_cd := 0.0
+var rolling := false
+var momentum := 0.0         # 翻滚跳之后的惯性时间，这期间不减速
 var in_water := false
+var on_ice := false
 var on_ladder := false
 var climbing := false
+var wall_dir := 0          # -1 = 墙在左边，1 = 墙在右边，0 = 没贴墙
+var wall_lock := 0.0
 var jumps_left := MAX_JUMPS
 var dead := false
 var level_bottom := 768.0
@@ -67,6 +94,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	invuln = maxf(0.0, invuln - delta)
 	roll_cd = maxf(0.0, roll_cd - delta)
+	wall_lock = maxf(0.0, wall_lock - delta)
+	momentum = maxf(0.0, momentum - delta)
 
 	if dead:
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
@@ -90,7 +119,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var dir := Input.get_axis("move_left", "move_right")
-	if absf(dir) > 0.01:
+	# 翻滚中不转向，否则按一下方向键就会反向滚
+	if absf(dir) > 0.01 and wall_lock <= 0.0 and not rolling:
 		facing = 1 if dir > 0.0 else -1
 
 	# 爬梯：上键 / 下键进入攀爬，按左右脱离，按跳跃蹬梯跳
@@ -124,25 +154,65 @@ func _physics_process(delta: float) -> void:
 		_update_anim()
 		return
 
-	# 翻滚计时
-	if roll_time > 0.0:
-		roll_time -= delta
-		velocity.x = move_toward(velocity.x, facing * ROLL_SPEED, ACCEL * 2.0 * delta)
-	else:
-		if absf(dir) > 0.01:
-			var target := dir * (WATER_SPEED if in_water else SPEED)
-			velocity.x = move_toward(velocity.x, target, ACCEL * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
+	var on_ground := is_on_floor()
+	var can_ground_jump := on_ground or coyote > 0.0
+	var can_jump := can_ground_jump or jumps_left > 0
 
 	# 跳跃缓冲
 	jump_buffer = maxf(0.0, jump_buffer - delta)
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer = JUMP_BUFFER
 
-	var on_ground := is_on_floor()
-	var can_ground_jump := on_ground or coyote > 0.0
-	var can_jump := can_ground_jump or jumps_left > 0
+	# --- 墙 ---
+	wall_dir = _wall_dir()
+	var pressing_wall := wall_dir != 0 and dir * float(wall_dir) > 0.0
+
+	# 蹬墙跳：人在半空贴着墙时按跳
+	if wall_dir != 0 and not on_ground and jump_buffer > 0.0:
+		jump_buffer = 0.0
+		velocity.x = -float(wall_dir) * WALL_JUMP_X
+		velocity.y = WALL_JUMP_Y
+		wall_lock = WALL_LOCK
+		jumps_left = 1          # 蹬完还剩一次二段跳
+		coyote = 0.0
+		rolling = false
+		Audio.play_sfx("jump")
+		_apply_gravity(delta, GRAVITY, MAX_FALL)
+		move_and_slide()
+		_update_anim()
+		return
+
+	# 贴墙下滑：按住朝墙的方向，掉得比自由落体慢
+	if wall_dir != 0 and not on_ground and pressing_wall:
+		velocity.y = minf(velocity.y, WALL_SLIDE_SPEED)
+		facing = wall_dir
+
+	# --- 地面翻滚 ---
+	if rolling:
+		roll_time -= delta
+		velocity.x = float(facing) * ROLL_SPEED
+		if roll_time <= 0.0:
+			rolling = false
+			roll_cd = ROLL_COOLDOWN
+			velocity.x = float(facing) * ROLL_SPEED * ROLL_EXIT_SPEED
+		# 翻滚中撞东西
+		roll_strike.emit(global_position + Vector2(float(facing) * 12.0, -8.0))
+	elif Input.is_action_just_pressed("down") and can_ground_jump and roll_cd <= 0.0 \
+			and not in_water and not Input.is_action_just_pressed("jump"):
+		# 站着按 ↓ 起滚。同一帧还按了跳跃就留给翻滚跳。
+		rolling = true
+		roll_time = ROLL_TIME
+		velocity.x = float(facing) * ROLL_SPEED
+	elif momentum > 0.0:
+		# 翻滚跳之后的惯性：速度先保持住，不急着往常态速拉
+		pass
+	elif absf(dir) > 0.01:
+		var target := dir * (WATER_SPEED if in_water else SPEED)
+		var accel := ICE_ACCEL if on_ice else ACCEL
+		velocity.x = move_toward(velocity.x, target, accel * delta)
+	else:
+		var friction := ICE_FRICTION if on_ice else FRICTION
+		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
 	if in_water:
 		# 水里：可以一直按住跳跃往上浮
@@ -157,11 +227,14 @@ func _physics_process(delta: float) -> void:
 			jumps_left = MAX_JUMPS - 1      # 地面跳用掉第一段
 		else:
 			jumps_left -= 1                 # 空中跳
-		if Input.is_action_pressed("down") and can_ground_jump and roll_cd <= 0.0:
-			# 下 + 跳跃 = 翻滚跳
+		# 翻滚跳：按着 ↓ 跳，或者翻滚途中跳
+		var want_roll_jump := rolling or (Input.is_action_pressed("down") and can_ground_jump)
+		rolling = false
+		if want_roll_jump:
 			roll_time = ROLL_TIME
 			roll_cd = ROLL_COOLDOWN
 			velocity.y = ROLL_JUMP_VELOCITY
+			momentum = ROLL_MOMENTUM
 		else:
 			velocity.y = JUMP_VELOCITY
 		Audio.play_sfx("jump")
@@ -203,10 +276,12 @@ func _apply_gravity(delta: float, g: float, max_fall: float) -> void:
 
 # ---------------------------------------------------------------- 感应区
 
-## 水和木梯都在 TileSet 的独立物理层上，用形状查询判断。
+## 水、冰和木梯都在 TileSet 的独立物理层上，用形状查询判断。
 func _scan_sensors() -> void:
-	in_water = _probe(4, Vector2(0, -6), Vector2(8, 8))
-	on_ladder = _probe(8, Vector2(0, -8), Vector2(8, 14))
+	in_water = _probe(LAYER_WATER, Vector2(0, -6), Vector2(8, 8))
+	on_ladder = _probe(LAYER_LADDER, Vector2(0, -8), Vector2(8, 14))
+	# 冰面只要脚下正下方那一小块，贴着冰墙不会误判
+	on_ice = _probe(LAYER_ICE, Vector2(0, -1), Vector2(6, 4))
 
 
 func _probe(mask: int, offset: Vector2, size: Vector2) -> bool:
@@ -222,6 +297,18 @@ func _probe(mask: int, offset: Vector2, size: Vector2) -> bool:
 	return not space.intersect_shape(q, 1).is_empty()
 
 
+## 当前贴着的墙在哪边：-1 = 墙在左，1 = 墙在右，0 = 没贴墙
+func _wall_dir() -> int:
+	if not is_on_wall_only():
+		return 0
+	var n := get_wall_normal()
+	if n.x > 0.5:
+		return -1
+	if n.x < -0.5:
+		return 1
+	return 0
+
+
 func is_rolling() -> bool:
 	return roll_time > 0.0
 
@@ -234,6 +321,8 @@ func take_damage(from_x: float) -> void:
 	invuln = INVULN_TIME
 	hurt_time = HURT_TIME
 	roll_time = 0.0
+	rolling = false
+	momentum = 0.0
 	climbing = false
 	Audio.play_sfx("hurt")
 	var away := 1.0 if global_position.x >= from_x else -1.0
@@ -248,8 +337,11 @@ func respawn(pos: Vector2) -> void:
 	dead = false
 	hurt_time = 0.0
 	roll_time = 0.0
+	rolling = false
 	roll_cd = 0.0
+	momentum = 0.0
 	climbing = false
+	wall_lock = 0.0
 	jumps_left = MAX_JUMPS
 	invuln = INVULN_TIME
 	velocity = Vector2.ZERO
@@ -267,6 +359,7 @@ func respawn(pos: Vector2) -> void:
 func bounce() -> void:
 	velocity.y = BOUNCE_VELOCITY
 	roll_time = 0.0
+	rolling = false
 
 
 func die() -> void:
@@ -275,6 +368,7 @@ func die() -> void:
 	dead = true
 	hurt_time = 0.0
 	roll_time = 0.0
+	rolling = false
 	invuln = 0.0
 	velocity = Vector2(0.0, -190.0)
 	sprite.modulate.a = 1.0
@@ -297,7 +391,7 @@ func _update_anim() -> void:
 		_play("death")
 	elif hurt_time > 0.0:
 		_play("hurt")
-	elif roll_time > 0.0:
+	elif rolling or roll_time > 0.0:
 		_play("roll")
 	elif climbing or in_water:
 		_play("walk" if absf(velocity.x) > 5.0 or climbing else "idle")

@@ -6,6 +6,7 @@ const DATA_PATH := "res://scenes/levels/level01.json"
 const COIN_SCENE := preload("res://scenes/objects/Coin.tscn")
 const SLIME_SCENE := preload("res://scenes/actors/Slime.tscn")
 const PICKUP_SCENE := preload("res://scenes/objects/Pickup.tscn")
+const CHECKPOINT_SCENE := preload("res://scenes/objects/Checkpoint.tscn")
 
 const TILE := 16
 const CLEAR_COL := 4             # 离右边界还剩几列就算通关
@@ -18,6 +19,8 @@ var map_rows: Array = []
 var tile_names: Dictionary = {}
 var entity_names: Dictionary = {}
 var spawn := Vector2i(4, 26)
+## 复活点。碰到检查机会被挪到那个牌子那里。
+var respawn_pos := Vector2.ZERO
 var trees: Array = []
 var grass: Array = []
 
@@ -69,9 +72,11 @@ func _load_data() -> void:
 
 func _setup_player() -> void:
 	player.level_bottom = LevelBounds.BOTTOM
-	player.position = Vector2(spawn.x * TILE + TILE / 2.0, spawn.y * TILE)
+	respawn_pos = Vector2(spawn.x * TILE + TILE / 2.0, spawn.y * TILE)
+	player.position = respawn_pos
 	player.head_bump.connect(_on_head_bump)
 	player.died.connect(_on_player_died)
+	player.roll_strike.connect(_on_roll_strike)
 
 	var cam := player.get_node_or_null("Camera2D") as Camera2D
 	if cam != null:
@@ -167,6 +172,8 @@ func _paint_map() -> void:
 func _spawn_entities() -> void:
 	var coins := 0
 	var slimes := 0
+	var purple := 0
+	var checkpoints := 0
 	for y in height:
 		var row := _row(y)
 		for x in width:
@@ -184,7 +191,20 @@ func _spawn_entities() -> void:
 					slime.position = Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
 					entities.add_child(slime)
 					slimes += 1
-	print("[关卡] 金币 %d 个，史莱姆 %d 只" % [coins, slimes])
+				"slime_purple":
+					var slime2 := SLIME_SCENE.instantiate()
+					slime2.variant = "purple"
+					slime2.position = Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+					entities.add_child(slime2)
+					purple += 1
+				"checkpoint":
+					var cp := CHECKPOINT_SCENE.instantiate()
+					cp.position = Vector2(x * TILE + TILE / 2.0, (y + 1) * TILE)
+					entities.add_child(cp)
+					cp.activated.connect(_on_checkpoint)
+					checkpoints += 1
+	print("[关卡] 金币 %d 个，史莱姆 %d 只（紫 %d 只），检查点 %d 个"
+		% [coins, slimes, purple, checkpoints])
 
 
 func _count_char(ch: String) -> int:
@@ -227,6 +247,35 @@ func _bump(cell: Vector2i, key: String) -> void:
 	p.pop_from(p.position.y)
 
 
+# ---------------------------------------------------------------- 木箱 / 检查点
+
+## 翻滚撞到木箱：把砖从地形层抹掉，一半概率掉一枚金币。
+func _on_roll_strike(world_pos: Vector2) -> void:
+	var cell := terrain.local_to_map(terrain.to_local(world_pos))
+	var step := 1 if player.facing > 0 else -1
+	for dx in [0, step]:
+		var c := cell + Vector2i(dx, 0)
+		if _key_at(c).begins_with("crate_"):
+			_break_crate(c)
+			return
+
+
+func _break_crate(cell: Vector2i) -> void:
+	terrain.erase_cell(cell)
+	Game.add_score(50)
+	Audio.play_sfx("explosion")
+	# 一半概率掉一枚金币
+	if randf() < 0.5:
+		var coin := COIN_SCENE.instantiate()
+		coin.position = Vector2(cell.x * TILE + TILE / 2.0, cell.y * TILE + TILE / 2.0)
+		entities.add_child(coin)
+
+
+## 碰到检查点：把复活点挪过来
+func _on_checkpoint(pos: Vector2) -> void:
+	respawn_pos = pos
+
+
 # ---------------------------------------------------------------- 通关 / 死亡
 
 func _process(_delta: float) -> void:
@@ -246,6 +295,7 @@ func _on_player_died() -> void:
 
 
 ## 原地复活：世界状态（吃过的金币、顶过的块）保留
+## 复活点是最近的检查点，没碰到过检查点就是出生点。
 func _respawn() -> void:
 	Game.set_health(Game.MAX_HEALTH)
-	player.respawn(Vector2(spawn.x * TILE + TILE / 2.0, spawn.y * TILE))
+	player.respawn(respawn_pos)

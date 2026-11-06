@@ -1,6 +1,6 @@
 extends SceneTree
 ## 用 tools/atlas_index.json 建 TileSet。
-## 物理层：0 = 实体碰撞，1 = 水（感应），2 = 木梯（感应）
+## 物理层：0 = 实体碰撞，1 = 水（感应），2 = 木梯（感应），3 = 冰面（感应）
 ##
 ## 运行： Godot --headless --path . --script res://tools/build_tileset.gd
 
@@ -12,6 +12,10 @@ const GROUPS := ["terrain", "props", "water", "bg", "plants"]
 const LAYER_WORLD := 0    # 位 1
 const LAYER_WATER := 1    # 位 4
 const LAYER_LADDER := 2   # 位 8
+const LAYER_ICE := 3      # 位 16
+
+# 冰面砖：既挡路，又多一层「冰」感应层，角色好判断脚下是不是冰
+const ICE_TILES := ["ice", "ice_stone", "snow_ice", "snow_stone"]
 
 
 
@@ -23,6 +27,7 @@ func _init() -> void:
 	_add_layer(ts, 1)
 	_add_layer(ts, 4)
 	_add_layer(ts, 8)
+	_add_layer(ts, 16)
 
 	var counts := {}
 	for gi in GROUPS.size():
@@ -40,8 +45,7 @@ func _init() -> void:
 			var coords := Vector2i(int(raw[0]), int(raw[1]))
 			src.create_tile(coords)
 			var td := src.get_tile_data(coords, 0)
-			var layer := _physics_for(group, String(key))
-			if layer >= 0:
+			for layer in _physics_for(group, String(key)):
 				td.add_collision_polygon(layer)
 				# 碰撞多边形是相对砖中心的，所以是 -8..+8
 				td.set_collision_polygon_points(layer, 0, PackedVector2Array([
@@ -65,23 +69,25 @@ func _add_layer(ts: TileSet, collision_layer: int) -> void:
 	ts.set_physics_layer_collision_mask(i, 0)
 
 
-## 返回这个砖该加在哪层物理层上，-1 = 不加碰撞
-func _physics_for(group: String, key: String) -> int:
+## 返回这个砖该加在哪些物理层上，空数组 = 不加碰撞
+func _physics_for(group: String, key: String) -> Array:
 	match group:
 		"terrain":
-			return LAYER_WORLD
+			if key in ICE_TILES:
+				return [LAYER_WORLD, LAYER_ICE]
+			return [LAYER_WORLD]
 		"water":
-			return LAYER_WATER
+			return [LAYER_WATER]
 		"bg", "plants":
-			return -1   # 装饰，不挡路
+			return []   # 装饰，不挡路
 		"props":
 			if key.begins_with("ladder_"):
-				return LAYER_LADDER
+				return [LAYER_LADDER]
 			if key.begins_with("sign_"):
-				return -1
+				return []
 			# 桥 / 互动块 / 空块 / 木箱 都挡路
-			return LAYER_WORLD
-	return -1
+			return [LAYER_WORLD]
+	return []
 
 
 func _read_index() -> Dictionary:

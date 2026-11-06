@@ -16,7 +16,7 @@
 knight/
 ├── project.godot          # 项目配置
 ├── assets/
-│   ├── icons/             # 图标（含项目图标 icon.svg）
+│   ├── icons/             # 图标（含项目图标 icon.png，骑士封面）
 │   ├── PALETTE.md         # 全项目色板登记表（配色家族 ↔ hex ↔ 素材）
 │   ├── sprites/knight/    # 主角素材 + knight_frames.tres（见其 README）
 │   ├── sprites/coin/      # 硬币 + coin_frames.tres（见其 README）
@@ -46,6 +46,7 @@ knight/
 │   └── enums/
 ├── tools/                 # 资源生成 / 切图脚本
 │   ├── build_frames.gd
+│   ├── make_icon.py       # 生成项目图标（骑士封面）
 │   ├── slice_platforms.py
 │   ├── slice_slimes.py
 │   ├── ingest_world.py
@@ -75,6 +76,7 @@ knight/
 | 史莱姆 | `assets/sprites/slime/` | 14×15 | `slime_green_frames.tres` / `slime_purple_frames.tres` | melt / idle / hurt（绿紫同形状换色） |
 | 蘑菇 | `assets/sprites/mushroom/` | 16×16 | `mushroom_big_frames.tres` / `mushroom_cluster_frames.tres` | red / gold / purple / green（单张大蘑菇 / 大蘑菇+两个小蘑菇，同形状换色） |
 | 药瓶 | `assets/sprites/potion/` | 16×16 | `potion_frames.tres` | green / gold / blue / purple（同形状换色） |
+| 项目图标 | `assets/icons/` | 128×128 | — | 骑士封面，由 `tools/make_icon.py` 生成 |
 
 | 音频 | 目录 | 内容 |
 |---|---|---|---|

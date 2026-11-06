@@ -15,7 +15,7 @@ config/description="A 2D platformer game."
 config/version="0.1.0"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://assets/icons/icon.svg"
+config/icon="res://assets/icons/icon.png"
 
 [autoload]
 

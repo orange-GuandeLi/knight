@@ -75,8 +75,9 @@ func reset() -> void:
 	time_changed.emit(time_left)
 
 
-## 换关时用：总分保留，血量、金币、连击重置。
+## 换关时用：总分保留，血量、命数、金币、连击重置。
 func reset_for_next_level() -> void:
+	lives = START_LIVES
 	health = MAX_HEALTH
 	coins = 0
 	total_coins = 0
@@ -86,6 +87,7 @@ func reset_for_next_level() -> void:
 	finished = false
 	over = false
 	cleared = false
+	lives_changed.emit(lives)
 	health_changed.emit(health)
 	coins_changed.emit(coins, total_coins)
 	combo_changed.emit(combo)

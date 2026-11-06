@@ -18,29 +18,29 @@
   ".....................1o.2....................H...................2.........................h.........................PGd",
   "....................o..o..........P..........H.............P...............................h.........................Gdd",
   ".....ooooP.........o....o.....P...Pooo.....P.H.............P..ooo...................P......h...............oo..P....Gddd",
-  "..Pn.P...P.P.......P...P......P...P.P.e..P.P.H.............PPe....e.............PcPoPCP.n..h...............P.e.P...Gdddd",
-  "GGGGGGGGGGGGGG....GGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)xxxxxxxxGddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd",
-  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......dddddddddddddd"
+  "..Pn.P...P.P.......P...P......P.k.P.P.e..P.P.H.............PPe...ke.............PcPoPCP.n..h...k...........PE..P...Gdddd",
+  "GGGGGGGGGGGGGG....GGGGGGGGG[=====]GGGGGGGGGGGGGGGGGGG{++++}GGGGGGGGGGwwwwwwwwwwGGGGGGGGGGGGGGGGGGGGG(****)iiiixxxxGddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddvvvvvvvvvvddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd",
+  "dddddddddddddd....ddddddddd.......ddddddddddddddddddd......ddddddddddddddddddddddddddddddddddddddddd......IIIIdddddddddd"
  ],
  "tiles": {
   "G": "grass_dirt",
@@ -71,11 +71,17 @@
   "7": "block_stone_question",
   "8": "block_stone_exclaim",
   "w": "water_ice_surface_body",
-  "v": "water_ice_body"
+  "v": "water_ice_body",
+  "i": "ice",
+  "I": "ice_stone",
+  "s": "snow_ice",
+  "S": "snow_stone"
  },
  "entities": {
   "o": "coin",
-  "e": "slime"
+  "e": "slime",
+  "E": "slime_purple",
+  "k": "checkpoint"
  },
  "decor": {
   "trees": [
@@ -202,5 +208,6 @@
     "n": 2
    }
   ]
- }
+ },
+ "time_limit": 120
 }

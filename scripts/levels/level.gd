@@ -1,7 +1,7 @@
 extends Node2D
-## 关卡 01：按 level01.json 里的字符地图铺砖、生成实体。
-
-const DATA_PATH := "res://scenes/levels/level01.json"
+## 关卡：按关卡数据 json 里的字符地图铺砖、生成实体。
+##
+## 每一关一个场景（Level01 / Level02 / Level03），只有数据文件不一样。
 
 const COIN_SCENE := preload("res://scenes/objects/Coin.tscn")
 const SLIME_SCENE := preload("res://scenes/actors/Slime.tscn")
@@ -12,6 +12,9 @@ const TILE := 16
 const CLEAR_COL := 4             # 离右边界还剩几列就算通关
 const DECOR_MARK := "P"          # 关卡数据里植物占位用的字符，不铺地形砖
 
+## 关卡数据。场景里可以改这一项指向别的 json。
+@export_file("*.json") var data_path := "res://scenes/levels/level01.json"
+
 var width := 0
 var height := 0
 var top_rows := 0
@@ -21,6 +24,8 @@ var entity_names: Dictionary = {}
 var spawn := Vector2i(4, 26)
 ## 复活点。碰到检查机会被挪到那个牌子那里。
 var respawn_pos := Vector2.ZERO
+## 关卡限时（秒），0 = 不限时
+var time_limit := 0.0
 var trees: Array = []
 var grass: Array = []
 
@@ -46,12 +51,16 @@ func _ready() -> void:
 
 	Game.set_total_coins(_count_char("o"))
 
+	# 关卡限时。开了倒计时就把 HUD 上的计时器点亮。
+	Game.start_timer(time_limit)
+	Game.time_up.connect(_on_time_up)
+
 
 ## 把关卡数据从 json 读进来
 func _load_data() -> void:
-	var f := FileAccess.open(DATA_PATH, FileAccess.READ)
+	var f := FileAccess.open(data_path, FileAccess.READ)
 	if f == null:
-		push_error("读不到关卡数据 %s" % DATA_PATH)
+		push_error("读不到关卡数据 %s" % data_path)
 		return
 	var d = JSON.parse_string(f.get_as_text())
 	if not d is Dictionary:
@@ -65,6 +74,7 @@ func _load_data() -> void:
 	entity_names = d.get("entities", {})
 	var sp: Array = d.get("spawn", [4, 26])
 	spawn = Vector2i(int(sp[0]), int(sp[1]))
+	time_limit = float(d.get("time_limit", 0))
 	var deco: Dictionary = d.get("decor", {})
 	trees = deco.get("trees", [])
 	grass = deco.get("grass", [])
@@ -262,7 +272,7 @@ func _on_roll_strike(world_pos: Vector2) -> void:
 
 func _break_crate(cell: Vector2i) -> void:
 	terrain.erase_cell(cell)
-	Game.add_score(50)
+	Game.score_with_combo(50)
 	Audio.play_sfx("explosion")
 	# 一半概率掉一枚金币
 	if randf() < 0.5:
@@ -274,6 +284,11 @@ func _break_crate(cell: Vector2i) -> void:
 ## 碰到检查点：把复活点挪过来
 func _on_checkpoint(pos: Vector2) -> void:
 	respawn_pos = pos
+
+
+## 倒计时归零：这一局结束
+func _on_time_up() -> void:
+	Game.fail()
 
 
 # ---------------------------------------------------------------- 通关 / 死亡

@@ -1,0 +1,189 @@
+{
+ "width": 120,
+ "height": 48,
+ "top_rows": 14,
+ "spawn": [
+  4,
+  26
+ ],
+ "map": [
+  "........................................................................................................................",
+  "..................................................................................5.....................................",
+  "........................................................................................................................",
+  "....................................1..........................................oooooooo.................................",
+  ".............................................................................phpppppppppp...............................",
+  "...................................oooo.......................................h.........................................",
+  "..................................rrrrrr......................................h........................................G",
+  "..............................................................................h.......................................Gd",
+  "..............................................................................h......................................Gdd",
+  ".............................................P................................h...........P......................P..Gddd",
+  ".....oooo.....oooooooo........P...........oo.P.........P..oo..................h...........P..ooo........P.oooo...P.Gdddd",
+  ".P.n..P..P..............k...P.P..........e..EPkP..c.c.CP.EP...................hPP....k....P.E...E...P...PE....kP.PGddddd",
+  "GGGGGGGGGGGiiiiiiiiiiiiiiiGGGGGGG.GGGGGGGGGGGGGGGGGGGGGGGGGGG{+++++}wwwwwwwwwGGGGGGGGGGGGiiiiiiiiiiiiisssssssssssGdddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......vvvvvvvvvddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......vvvvvvvvvddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......vvvvvvvvvddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......vvvvvvvvvddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......vvvvvvvvvddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd",
+  "dddddddddddIIIIIIIIIIIIIIIddddddd.ddddddddddddddddddddddddddd.......dddddddddddddddddddddIIIIIIIIIIIIISSSSSSSSSSSddddddd"
+ ],
+ "tiles": {
+  "G": "grass_dirt",
+  "d": "dirt",
+  "r": "pale_rock",
+  "p": "purple_rock",
+  "x": "cracked_dirt",
+  "n": "sign_dirt",
+  "c": "crate_dirt",
+  "C": "crate_purple_rock",
+  "H": "ladder_dirt",
+  "h": "ladder_purple_rock",
+  "[": "bridge_dirt_start",
+  "=": "bridge_dirt_middle",
+  "]": "bridge_dirt_end",
+  "{": "bridge_pale_rock_start",
+  "+": "bridge_pale_rock_middle",
+  "}": "bridge_pale_rock_end",
+  "(": "bridge_purple_rock_start",
+  "*": "bridge_purple_rock_middle",
+  ")": "bridge_purple_rock_end",
+  "1": "block_dirt_question",
+  "2": "block_dirt_exclaim",
+  "3": "block_pale_rock_question",
+  "4": "block_pale_rock_exclaim",
+  "5": "block_purple_rock_question",
+  "6": "block_purple_rock_exclaim",
+  "7": "block_stone_question",
+  "8": "block_stone_exclaim",
+  "w": "water_ice_surface_body",
+  "v": "water_ice_body",
+  "i": "ice",
+  "I": "ice_stone",
+  "s": "snow_ice",
+  "S": "snow_stone"
+ },
+ "entities": {
+  "o": "coin",
+  "e": "slime",
+  "E": "slime_purple",
+  "k": "checkpoint"
+ },
+ "decor": {
+  "trees": [
+   {
+    "x": 9,
+    "y": 25,
+    "kind": "green",
+    "bodies": 0
+   },
+   {
+    "x": 30,
+    "y": 25,
+    "kind": "moss",
+    "bodies": 1
+   },
+   {
+    "x": 45,
+    "y": 25,
+    "kind": "green",
+    "bodies": 2
+   },
+   {
+    "x": 55,
+    "y": 25,
+    "kind": "gold",
+    "bodies": 1
+   },
+   {
+    "x": 80,
+    "y": 25,
+    "kind": "green",
+    "bodies": 0
+   },
+   {
+    "x": 90,
+    "y": 25,
+    "kind": "moss",
+    "bodies": 2
+   },
+   {
+    "x": 104,
+    "y": 25,
+    "kind": "green",
+    "bodies": 1
+   },
+   {
+    "x": 113,
+    "y": 25,
+    "kind": "gold",
+    "bodies": 2
+   }
+  ],
+  "grass": [
+   {
+    "x": 1,
+    "y": 25,
+    "kind": "green",
+    "n": 1
+   },
+   {
+    "x": 6,
+    "y": 25,
+    "kind": "green",
+    "n": 2
+   },
+   {
+    "x": 28,
+    "y": 25,
+    "kind": "green",
+    "n": 3
+   },
+   {
+    "x": 47,
+    "y": 25,
+    "kind": "moss",
+    "n": 1
+   },
+   {
+    "x": 58,
+    "y": 25,
+    "kind": "green",
+    "n": 1
+   },
+   {
+    "x": 79,
+    "y": 25,
+    "kind": "green",
+    "n": 2
+   },
+   {
+    "x": 100,
+    "y": 25,
+    "kind": "moss",
+    "n": 3
+   },
+   {
+    "x": 111,
+    "y": 25,
+    "kind": "green",
+    "n": 1
+   }
+  ]
+ },
+ "time_limit": 150
+}

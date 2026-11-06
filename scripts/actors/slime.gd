@@ -99,7 +99,7 @@ func squash() -> void:
 	if dead:
 		return
 	dead = true
-	Game.add_score(score_value)
+	Game.score_with_combo(score_value)
 	Audio.play_sfx("explosion")
 	collision_layer = 0
 	collision_mask = 0

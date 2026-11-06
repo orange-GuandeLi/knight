@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """用图集把关卡渲染成一张预览图，方便肉眼检查。
 
-用法: python3 tools/preview_level.py [输出路径] [起始行] [结束行]
+用法: python3 tools/preview_level.py [输出路径] [起始行] [结束行] [关卡文件]
 """
 import json, sys
 from PIL import Image
@@ -9,8 +9,9 @@ from PIL import Image
 out = sys.argv[1] if len(sys.argv) > 1 else "/tmp/level01_preview.png"
 y0 = int(sys.argv[2]) if len(sys.argv) > 2 else 13
 y1 = int(sys.argv[3]) if len(sys.argv) > 3 else 34
+level_file = sys.argv[4] if len(sys.argv) > 4 else "scenes/levels/level01.json"
 
-d = json.load(open("scenes/levels/level01.json", encoding="utf-8"))
+d = json.load(open(level_file, encoding="utf-8"))
 idx = json.load(open("tools/atlas_index.json", encoding="utf-8"))
 atlas = {g: Image.open(f"assets/tilesets/world/atlases/{g}.png").convert("RGBA") for g in idx}
 
@@ -93,7 +94,11 @@ for y in range(y0, y1):
             dr.ellipse([x * T + 4, (y - y0) * T + 4, x * T + 12, (y - y0) * T + 12], fill=(255, 242, 27))
         elif c == "e":
             dr.ellipse([x * T + 1, (y - y0) * T + 4, x * T + 15, (y - y0) * T + 15], fill=(186, 210, 0), outline=(22, 19, 32))
+        elif c == "E":
+            dr.ellipse([x * T + 1, (y - y0) * T + 4, x * T + 15, (y - y0) * T + 15], fill=(183, 61, 148), outline=(35, 20, 36))
+        elif c == "k":
+            dr.rectangle([x * T + 2, (y - y0) * T + 2, x * T + 14, (y - y0) * T + 11], fill=(182, 107, 58), outline=(35, 28, 25))
 
 img = img.resize((img.width, img.height), Image.NEAREST)
 img.save(out)
-print(f"{out}  {img.size}  行 {y0}~{y1}")
+print(f"{out}  {img.size}  行 {y0}~{y1}  <- {level_file}")

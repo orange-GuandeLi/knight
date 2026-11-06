@@ -56,9 +56,9 @@ func _on_body_entered(body: Node2D) -> void:
 	match kind:
 		"potion":
 			Game.add_health(1)
-			Game.add_score(50)
+			Game.score_with_combo(50)
 		"fruit":
-			Game.add_score(150)
+			Game.score_with_combo(150)
 		_:
-			Game.add_score(200)
+			Game.score_with_combo(200)
 	queue_free()

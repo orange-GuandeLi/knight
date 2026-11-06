@@ -1,22 +1,56 @@
 extends Node
-## 全局游戏状态：分数、生命、血量、金币。HUD 订阅信号刷新。
+## 全局游戏状态：分数、生命、血量、金币、连击、倒计时。HUD 订阅信号刷新。
 
 signal score_changed(score: int)
 signal lives_changed(lives: int)
 signal health_changed(health: int)
 signal coins_changed(coins: int, total: int)
+signal combo_changed(combo: int)
+signal time_changed(time_left: float)
+signal time_up()
 signal game_over()
 signal level_cleared()
+signal all_levels_cleared()
 
 const MAX_HEALTH := 3
 const START_LIVES := 3
+
+# 一共几关
+const LEVEL_COUNT := 3
+
+# 连击：连续吃到东西倍率就往上翻，断开就清零
+const COMBO_WINDOW := 2.0      # 两次之间最多隔这么久（秒）
+const COMBO_MAX := 9           # 倍率上限
 
 var score := 0
 var lives := START_LIVES
 var health := MAX_HEALTH
 var coins := 0
 var total_coins := 0
-var finished := false
+var combo := 0
+var combo_timer := 0.0
+var time_left := 0.0           # 0 = 不限时
+var finished := false          # 本局结束了（通关或失败）
+var cleared := false           # 当前这关通关了
+var all_cleared := false       # 全部关卡都过了
+var level_index := 0           # 当前关卡序号（0 起）
+
+
+func _process(delta: float) -> void:
+	# 连击断线
+	if combo > 0:
+		combo_timer -= delta
+		if combo_timer <= 0.0:
+			combo = 0
+			combo_changed.emit(combo)
+
+	# 倒计时
+	if time_left > 0.0 and not finished:
+		time_left = maxf(0.0, time_left - delta)
+		time_changed.emit(time_left)
+		if time_left <= 0.0:
+			time_up.emit()
+
 
 func reset() -> void:
 	score = 0
@@ -24,43 +58,106 @@ func reset() -> void:
 	health = MAX_HEALTH
 	coins = 0
 	total_coins = 0
+	combo = 0
+	combo_timer = 0.0
+	time_left = 0.0
 	finished = false
+	cleared = false
+	all_cleared = false
 	# 重置也走信号，订阅方（HUD）不用自己去拉状态
 	score_changed.emit(score)
 	lives_changed.emit(lives)
 	health_changed.emit(health)
 	coins_changed.emit(coins, total_coins)
+	combo_changed.emit(combo)
+	time_changed.emit(time_left)
+
+
+## 换关时用：总分保留，血量、金币、连击重置。
+func reset_for_next_level() -> void:
+	health = MAX_HEALTH
+	coins = 0
+	total_coins = 0
+	combo = 0
+	combo_timer = 0.0
+	time_left = 0.0
+	finished = false
+	cleared = false
+	health_changed.emit(health)
+	coins_changed.emit(coins, total_coins)
+	combo_changed.emit(combo)
+	time_changed.emit(time_left)
+
+
+## 前进到下一关。返回 false 表示已经是最后一关了。
+func next_level() -> bool:
+	if level_index + 1 >= LEVEL_COUNT:
+		all_cleared = true
+		all_levels_cleared.emit()
+		return false
+	level_index += 1
+	return true
+
 
 func add_score(v: int) -> void:
 	score += v
 	score_changed.emit(score)
 
+
+## 加分并累计连击。倍率从 1 起算，断连后重新来。
+func score_with_combo(base: int) -> int:
+	var mult := bump_combo()
+	var got := base * mult
+	add_score(got)
+	return got
+
+
+## 记一次连击，返回当前倍率（最小 1）。
+func bump_combo() -> int:
+	combo = mini(combo + 1, COMBO_MAX)
+	combo_timer = COMBO_WINDOW
+	combo_changed.emit(combo)
+	return combo
+
+
 func add_coin() -> void:
 	coins += 1
-	add_score(100)
+	score_with_combo(100)
 	coins_changed.emit(coins, total_coins)
+
 
 ## 直接设定血量。血量只能从这里改，改完自动裁剪范围并广播。
 func set_health(v: int) -> void:
 	health = clampi(v, 0, MAX_HEALTH)
 	health_changed.emit(health)
 
+
 ## 直接设定命数。
 func set_lives(v: int) -> void:
 	lives = v
 	lives_changed.emit(lives)
+
 
 ## 关卡加载完才知道一共有多少金币。
 func set_total_coins(n: int) -> void:
 	total_coins = n
 	coins_changed.emit(coins, total_coins)
 
+
+## 开一个倒计时（秒）。0 = 不限时。
+func start_timer(seconds: float) -> void:
+	time_left = maxf(0.0, seconds)
+	time_changed.emit(time_left)
+
+
 func add_health(v: int) -> void:
 	set_health(health + v)
+
 
 func damage(v := 1) -> bool:
 	set_health(health - v)
 	return health <= 0
+
 
 func lose_life() -> void:
 	lives -= 1
@@ -69,8 +166,18 @@ func lose_life() -> void:
 		finished = true
 		game_over.emit()
 
+
 func clear_level() -> void:
 	if finished:
 		return
 	finished = true
+	cleared = true
 	level_cleared.emit()
+
+
+## 直接结束本局（超时之类的硬失败）。
+func fail() -> void:
+	if finished:
+		return
+	finished = true
+	game_over.emit()

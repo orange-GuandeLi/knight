@@ -11,9 +11,12 @@ signal roll_strike(world_position: Vector2)
 const SPEED := 110.0
 const ACCEL := 800.0
 const FRICTION := 1000.0
-# 冰上：起步慢、几乎不减速，一脚踩上去刹不住
+# 冰面：又滑又刹不住，一脚踩上去容易冲过头
 const ICE_ACCEL := 340.0
 const ICE_FRICTION := 70.0
+# 雪面：踩上去是「难走」，不是打滑——走得慢、跳得矮
+const SNOW_SPEED := 70.0
+const SNOW_JUMP_SCALE := 0.76
 const JUMP_VELOCITY := -262.0
 const ROLL_JUMP_VELOCITY := -300.0
 # 可变跳跃高度：上升途中松开跳跃键，上升速度最多保留到这个值（越接近 0 跳得越矮）
@@ -64,6 +67,7 @@ const BODY_HALF := 5.0
 const LAYER_WATER := 4
 const LAYER_LADDER := 8
 const LAYER_ICE := 16
+const LAYER_SNOW := 32
 
 @onready var sprite: AnimatedSprite2D = $Sprite
 
@@ -78,6 +82,7 @@ var rolling := false
 var momentum := 0.0         # 翻滚跳之后的惯性时间，这期间不减速
 var in_water := false
 var on_ice := false
+var on_snow := false
 var on_ladder := false
 var climbing := false
 var wall_dir := 0          # -1 = 墙在左边，1 = 墙在右边，0 = 没贴墙
@@ -215,9 +220,13 @@ func _physics_process(delta: float) -> void:
 		# 蹬墙后的短暂锁向：不然还按着朝墙的方向，立刻就被拽回墙边
 		pass
 	elif absf(dir) > 0.01:
-		var target := dir * (WATER_SPEED if in_water else SPEED)
+		var top_speed := SPEED
+		if in_water:
+			top_speed = WATER_SPEED
+		elif on_snow:
+			top_speed = SNOW_SPEED          # 雪里走得慢
 		var accel := ICE_ACCEL if on_ice else ACCEL
-		velocity.x = move_toward(velocity.x, target, accel * delta)
+		velocity.x = move_toward(velocity.x, dir * top_speed, accel * delta)
 	else:
 		var friction := ICE_FRICTION if on_ice else FRICTION
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
@@ -238,13 +247,19 @@ func _physics_process(delta: float) -> void:
 		# 翻滚跳：按着 ↓ 跳，或者翻滚途中跳
 		var want_roll_jump := rolling or (Input.is_action_pressed("down") and can_ground_jump)
 		rolling = false
+		# 雪里跳不高
+		var jump_v := JUMP_VELOCITY
+		var roll_jump_v := ROLL_JUMP_VELOCITY
+		if on_snow:
+			jump_v *= SNOW_JUMP_SCALE
+			roll_jump_v *= SNOW_JUMP_SCALE
 		if want_roll_jump:
 			roll_time = ROLL_TIME
 			roll_cd = ROLL_COOLDOWN
-			velocity.y = ROLL_JUMP_VELOCITY
+			velocity.y = roll_jump_v
 			momentum = ROLL_MOMENTUM
 		else:
-			velocity.y = JUMP_VELOCITY
+			velocity.y = jump_v
 		Audio.play_sfx("jump")
 
 	# 可变跳跃高度：还在上升却没按住跳跃键，就把上升速度砍掉
@@ -300,6 +315,7 @@ func _scan_sensors() -> void:
 	on_ladder = _probe(LAYER_LADDER, Vector2(0, -8), Vector2(8, 14))
 	# 冰面只要脚下正下方那一小块，贴着冰墙不会误判
 	on_ice = _probe(LAYER_ICE, Vector2(0, -1), Vector2(6, 4))
+	on_snow = _probe(LAYER_SNOW, Vector2(0, -1), Vector2(6, 4))
 
 
 func _probe(mask: int, offset: Vector2, size: Vector2) -> bool:

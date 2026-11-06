@@ -13,9 +13,12 @@ const LAYER_WORLD := 0    # 位 1
 const LAYER_WATER := 1    # 位 4
 const LAYER_LADDER := 2   # 位 8
 const LAYER_ICE := 3      # 位 16
+const LAYER_SNOW := 4     # 位 32
 
-# 冰面砖：既挡路，又多一层「冰」感应层，角色好判断脚下是不是冰
-const ICE_TILES := ["ice", "ice_stone", "snow_ice", "snow_stone"]
+# 冰砖：又滑又刹不住
+const ICE_TILES := ["ice", "ice_stone"]
+# 雪砖：不难走，是跳不高
+const SNOW_TILES := ["snow_ice", "snow_stone"]
 
 
 
@@ -28,6 +31,7 @@ func _init() -> void:
 	_add_layer(ts, 4)
 	_add_layer(ts, 8)
 	_add_layer(ts, 16)
+	_add_layer(ts, 32)
 
 	var counts := {}
 	for gi in GROUPS.size():
@@ -73,6 +77,8 @@ func _physics_for(group: String, key: String) -> Array:
 		"terrain":
 			if key in ICE_TILES:
 				return [LAYER_WORLD, LAYER_ICE]
+			if key in SNOW_TILES:
+				return [LAYER_WORLD, LAYER_SNOW]
 			return [LAYER_WORLD]
 		"water":
 			return [LAYER_WATER]

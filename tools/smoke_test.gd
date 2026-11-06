@@ -365,35 +365,58 @@ func _on_physics() -> void:
 			_check("换关后清掉通关提示", hud.message.text == "",
 				"提示='%s'" % hud.message.text.replace("\n", " / "))
 
+		# ---------- 雪地（第 2 关 102~112 列）----------
+		# 雪地不是打滑：走得慢、跳得矮，但能刹住
+		1425:
+			_teleport(103 * 16 + 8, GROUND_Y)
+			Input.action_press("move_right")
+		1450:
+			_check("雪地走得慢", p.on_snow and absf(p.velocity.x - 70.0) < 6.0,
+				"on_snow=%s vx=%.1f（普通地面 110）" % [p.on_snow, p.velocity.x])
+			Input.action_release("move_right")
+		1465:
+			_check("雪地能刹住", absf(p.velocity.x) < 20.0,
+				"松手后 vx=%.1f（冰上会一直滑）" % p.velocity.x)
+		1470:
+			_teleport(103 * 16 + 8, GROUND_Y)
+			_start_track()
+		1475:
+			Input.action_press("jump")
+		1515:
+			Input.action_release("jump")
+		1535:
+			var snow_h := GROUND_Y - peak_y
+			_check("雪地跳得矮", snow_h < 40.0, "雪地跳 %.1f px（普通地面 50）" % snow_h)
+
 		# ---------- 墙跳（第 3 关的竖井）----------
-		1420:
+		1545:
 			Game.level_index = 2
 			main.load_level()
 			_refresh_nodes()
 			_teleport(61 * 16 + 2, GROUND_Y)     # 贴着左墙站
 			Input.action_press("move_left")
-		1430:
+		1555:
 			Input.action_press("jump")
-		1450:
+		1575:
 			Input.action_release("jump")
 			_check("贴墙下滑", p.wall_dir == -1 and p.velocity.y <= 60.0,
 				"wall_dir=%d vy=%.1f" % [p.wall_dir, p.velocity.y])
-		1460:
+		1585:
 			Input.action_press("jump")           # 蹬墙跳
 			wall_vx = 0.0
-		1465:
+		1590:
 			wall_vx = maxf(wall_vx, p.velocity.x)
-		1470:
+		1595:
 			wall_vx = maxf(wall_vx, p.velocity.x)
-		1475:
+		1600:
 			Input.action_release("jump")
 			# 蹬墙后有 0.14 秒锁向，之后松手会被减速，所以取最高速
 			_check("墙跳蹬出去", wall_vx > 100.0,
 				"蹬墙后最高 vx=%.1f" % wall_vx)
-		1360:
+		1610:
 			Input.action_release("move_left")
 
-		1500:
+		1640:
 			_seq_done = true
 
 

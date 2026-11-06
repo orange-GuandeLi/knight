@@ -17,10 +17,19 @@ const POOL_SIZE := 8
 const SFX_DB := -7.0
 const MUSIC_DB := -14.0
 
+## 音乐强度。同一首曲子用变调 + 音量做出不同的紧张感，不用新素材。
+## 0 = 探索（普通），1 = 高潮（Boss、最后一段），2 = 通关
+const INTENSITY := [
+	{"pitch": 1.0, "db": -14.0},   # 探索
+	{"pitch": 1.14, "db": -9.0},   # 高潮：更亮更响
+	{"pitch": 1.0, "db": -18.0},   # 通关：轻一点
+]
+
 var _pool: Array[AudioStreamPlayer] = []
 var _music: AudioStreamPlayer
 var _music_stream: AudioStream = null
 var _next := 0
+var _intensity := 0
 
 
 func _ready() -> void:
@@ -75,3 +84,13 @@ func stop_music() -> void:
 func set_music_volume(db: float) -> void:
 	if _music != null:
 		_music.volume_db = db
+
+
+## 切换音乐的紧张感。0 = 探索，1 = 高潮，2 = 通关。
+func set_music_intensity(level: int) -> void:
+	_intensity = clampi(level, 0, INTENSITY.size() - 1)
+	if _music == null:
+		return
+	var cfg: Dictionary = INTENSITY[_intensity]
+	_music.pitch_scale = float(cfg["pitch"])
+	_music.volume_db = float(cfg["db"])

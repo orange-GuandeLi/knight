@@ -15,6 +15,8 @@ signal level_cleared()
 signal all_levels_cleared()
 ## 新一关开始（重开或换关）。HUD 靠它清掉上一关的通关提示。
 signal level_started()
+## 本关拿到几颗星（0~3）
+signal stars_earned(stars: int)
 
 const MAX_HEALTH := 3
 const START_LIVES := 3

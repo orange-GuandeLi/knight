@@ -21,6 +21,7 @@ config/icon="res://assets/icons/icon.png"
 
 Game="*res://scripts/autoload/game.gd"
 Audio="*res://scripts/autoload/audio.gd"
+Progress="*res://scripts/autoload/progress.gd"
 
 [display]
 

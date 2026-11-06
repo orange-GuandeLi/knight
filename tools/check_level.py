@@ -62,11 +62,18 @@ def is_ladder(d, x, y):
     return cell(d, x, y) in LADDER
 
 
+# 移动平台经过的格子（按关卡编号分开存，校验时按当前关卡取）
+EXTRA_STAND = {}
+
+
 def stand_rows(d, x):
     """这一列可以站人的行：脚下是实心、头上是空的。
     水面也算——玩家浮在水面上。
     """
     out = []
+    for (ey, ex) in EXTRA_STAND.get(d.get("width", 0), []):
+        if ex == x:
+            out.append(ey)
     for y in range(d["top_rows"], d["height"]):
         if is_solid(d, x, y) and not is_solid(d, x, y - 1):
             out.append(y)
@@ -140,6 +147,19 @@ def check(path):
     d = load(path)
     W, H = d["width"], d["height"]
     problems = []
+
+    # 移动平台经过的格子也算能站
+    stand = set()
+    for p in d.get("platforms", []):
+        x0 = int(p["x"])
+        y0 = int(p["y"])
+        w = int(p.get("tiles", 1))
+        dx = int(p.get("dx", 0)) // 16
+        dy = int(p.get("dy", 0)) // 16
+        for xx in range(x0, x0 + w + abs(dx)):
+            for yy in range(y0 + min(0, dy), y0 + max(0, dy) + 1):
+                stand.add((yy, xx))
+    EXTRA_STAND[d["width"]] = sorted(stand)
 
     seen, err = reachable(d)
     if err:

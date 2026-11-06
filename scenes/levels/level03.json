@@ -217,5 +217,102 @@
   ]
  },
  "time_limit": 300,
- "coin_goal": 37
+ "coin_goal": 37,
+ "platforms": [
+  {
+   "x": 169,
+   "y": 26,
+   "tiles": 3,
+   "dx": 64,
+   "dy": 0,
+   "speed": 40,
+   "phase": 0.5
+  },
+  {
+   "x": 130,
+   "y": 24,
+   "tiles": 3,
+   "dx": 72,
+   "dy": 0,
+   "speed": 44,
+   "phase": 0.2
+  },
+  {
+   "x": 180,
+   "y": 24,
+   "tiles": 3,
+   "dx": 64,
+   "dy": 0,
+   "speed": 40,
+   "phase": 0.7
+  }
+ ],
+ "crumbles": [
+  {
+   "x": 120,
+   "y": 25,
+   "tiles": 3,
+   "material": "dirt"
+  }
+ ],
+ "rocks": [
+  {
+   "x": 160,
+   "delay": 1.2
+  },
+  {
+   "x": 164,
+   "delay": 2.4
+  }
+ ],
+ "boss": {
+  "x": 224
+ },
+ "sections": [
+  [
+   "intro",
+   0,
+   18
+  ],
+  [
+   "challenge",
+   19,
+   33
+  ],
+  [
+   "climax",
+   34,
+   58
+  ],
+  [
+   "reward",
+   59,
+   74
+  ],
+  [
+   "challenge",
+   75,
+   96
+  ],
+  [
+   "climax",
+   97,
+   128
+  ],
+  [
+   "reward",
+   129,
+   156
+  ],
+  [
+   "climax",
+   157,
+   190
+  ],
+  [
+   "outro",
+   191,
+   229
+  ]
+ ]
 }

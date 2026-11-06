@@ -24,6 +24,8 @@ var climb_y := 0.0
 var ice_vx := 0.0
 var wall_vx := 0.0
 var ps_vy := 0.0
+var plat_px := 0.0
+var plat_player_x := 0.0
 var cp_x := 0.0
 var _seq_done := false
 
@@ -461,16 +463,40 @@ func _on_physics() -> void:
 		1610:
 			Input.action_release("move_left")
 
+		# ---------- 移动平台 ----------
+		1620:
+			var mp := _first_moving_platform(1)
+			if mp != null:
+				# 站到平台上方，让它落下来
+				_teleport(mp.global_position.x + 24.0, mp.global_position.y - 40.0)
+		1638:
+			# 落地之后再记起点，否则量到的是落地前那一段
+			var mp0 := _first_moving_platform(1)
+			if mp0 != null:
+				plat_px = mp0.global_position.x
+				plat_player_x = p.global_position.x
+				var tex: Texture2D = mp0.get_node("Sprite").texture
+				_check("移动平台有贴图", tex != null,
+					"贴图=%s" % (tex.get_size() if tex != null else "null"))
+		1658:
+			var mp2 := _first_moving_platform(1)
+			if mp2 != null and plat_px != 0.0:
+				# 平台的位移和角色的位移应该一致（人被带着走）
+				var plat_move := mp2.global_position.x - plat_px
+				var player_move := p.global_position.x - plat_player_x
+				_check("移动平台会带着人走", absf(player_move - plat_move) < 10.0,
+					"平台走了 %.0f，人走了 %.0f" % [plat_move, player_move])
+
 		# ---------- 入水 = 淹死 ----------
 		# 放在最后：淹死会打断后面所有测试（角色在死亡动画里动不了）
-		1620:
+		1680:
 			Game.set_lives(3)
 			_teleport(172 * 16 + 8, 430)     # 直接丢进第 3 关的水塘
-		1650:
+		1710:
 			_check("掉进水里会淹死", p.dead,
 				"dead=%s in_water=%s" % [p.dead, p.in_water])
 
-		1680:
+		1740:
 			_seq_done = true
 
 
@@ -518,6 +544,18 @@ func _min_vy(cur: float) -> float:
 	if ps == null:
 		return cur
 	return minf(cur, ps.velocity.y)
+
+
+## 找第 n 块移动平台
+func _first_moving_platform(n: int = 0) -> Node2D:
+	var i := 0
+	for c in entities.get_children():
+		if c.get_script() != null \
+				and String(c.get_script().resource_path).ends_with("moving_platform.gd"):
+			if i == n:
+				return c
+			i += 1
+	return null
 
 
 func _first_purple_slime() -> Slime:

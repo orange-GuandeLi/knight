@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/objects/crumble_floor.gd" id="1_crumble"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(32, 7)
+
+[node name="CrumbleFloor" type="AnimatableBody2D"]
+sync_to_physics = true
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_crumble")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+centered = false
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+position = Vector2(16, 3.5)
+shape = SubResource("RectangleShape2D_body")

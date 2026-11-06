@@ -8,11 +8,16 @@ const SLIME_SCENE := preload("res://scenes/actors/Slime.tscn")
 const PICKUP_SCENE := preload("res://scenes/objects/Pickup.tscn")
 const CHECKPOINT_SCENE := preload("res://scenes/objects/Checkpoint.tscn")
 const DEBRIS_SCENE := preload("res://scenes/objects/Debris.tscn")
+const PLATFORM_SCENE := preload("res://scenes/objects/MovingPlatform.tscn")
+const CRUMBLE_SCENE := preload("res://scenes/objects/CrumbleFloor.tscn")
+const ROCK_SCENE := preload("res://scenes/objects/FallingRock.tscn")
+const BOSS_SCENE := preload("res://scenes/actors/Boss.tscn")
 
 ## 碎块颜色，跟地形色板一致
 const DIRT_COLOR := Color(0xB6, 0x6B, 0x3A)
 
 const TILE := 16
+const SURFACE_ROW := 26
 const CLEAR_COL := 4             # 离右边界还剩几列就算通关
 const DECOR_MARK := "P"          # 关卡数据里植物占位用的字符，不铺地形砖
 
@@ -30,8 +35,14 @@ var spawn := Vector2i(4, 26)
 var respawn_pos := Vector2.ZERO
 ## 关卡限时（秒），0 = 不限时
 var time_limit := 0.0
+## 整份关卡数据，移动平台等要从里面读
+var level_data: Dictionary = {}
 ## 通关要收集多少金币
 var coin_goal := 0
+## 这一关一共多少金币（算收集率用）
+var total_coins := 0
+## 当前的音乐紧张度，避免每帧重复设置
+var _intensity := -1
 ## 已经提示过「还差多少金币」，避免每帧重复发信号
 var _shown_short := -1
 var trees: Array = []
@@ -57,8 +68,13 @@ func _ready() -> void:
 	_paint_map()
 	_paint_decor()
 	_spawn_entities()
+	_spawn_platforms()
+	_spawn_crumbles()
+	_spawn_rocks()
+	_spawn_boss()
 
 	Game.set_coin_goal(coin_goal)
+	total_coins = _count_char("o")
 
 	# 关卡限时。开了倒计时就把 HUD 上的计时器点亮。
 	Game.start_timer(time_limit)
@@ -75,6 +91,7 @@ func _load_data() -> void:
 	if not d is Dictionary:
 		push_error("关卡数据格式不对")
 		return
+	level_data = d
 	width = int(d.get("width", 0))
 	height = int(d.get("height", 0))
 	top_rows = int(d.get("top_rows", 0))
@@ -310,6 +327,99 @@ func _break_crate(cell: Vector2i) -> void:
 		entities.add_child(coin)
 
 
+## 移动平台。它们不在字符地图里，单独从关卡数据的 platforms 段生成。
+func _spawn_platforms() -> void:
+	for p in level_data.get("platforms", []):
+		var pl := PLATFORM_SCENE.instantiate()
+		pl.tile_material = String(p.get("material", "grass"))
+		pl.tiles = int(p.get("tiles", 3))
+		pl.travel = Vector2(float(p.get("dx", 0.0)), float(p.get("dy", 0.0)))
+		pl.speed = float(p.get("speed", 42.0))
+		pl.phase = float(p.get("phase", 0.0))
+		pl.position = Vector2(float(p["x"]) * TILE, float(p["y"]) * TILE)
+		entities.add_child(pl)
+
+
+## 会塌的地板
+func _spawn_crumbles() -> void:
+	for c in level_data.get("crumbles", []):
+		var cf := CRUMBLE_SCENE.instantiate()
+		cf.tile_material = String(c.get("material", "dirt"))
+		cf.tiles = int(c.get("tiles", 2))
+		cf.position = Vector2(float(c["x"]) * TILE, float(c["y"]) * TILE)
+		entities.add_child(cf)
+
+## 根据玩家在关卡的哪一段，切换音乐的紧张感
+func _update_intensity() -> void:
+	var col := int(player.global_position.x / TILE)
+	var level := 0
+	for sec in level_data.get("sections", []):
+		var a: int = int(sec[1])
+		var b: int = int(sec[2])
+		if col >= a and col <= b:
+			match String(sec[0]):
+				"climax": level = 1
+				"outro": level = 1
+				"reward": level = 0
+	if level != _intensity:
+		_intensity = level
+		Audio.set_music_intensity(level)
+
+
+## 落石：从关卡顶部往下掉，地面有影子预警
+func _spawn_rocks() -> void:
+	for r in level_data.get("rocks", []):
+		var x: int = int(r["x"])
+		var delay: float = float(r.get("delay", 1.0))
+		# 落点：那一列地面上
+		var ground_y := float(_ground_row_at(x) + 1) * TILE
+		var rock := ROCK_SCENE.instantiate()
+		rock.position = Vector2(float(x) * TILE + TILE * 0.5, float(top_rows) * TILE)
+		entities.add_child(rock)
+		rock.setup(Vector2(float(x) * TILE + TILE * 0.5, 0.0), Vector2(0.0, ground_y))
+		rock.hit_player.connect(_on_rock_hit)
+		# 延迟开始
+		var timer := get_tree().create_timer(delay)
+		timer.timeout.connect(rock.start_falling)
+
+
+## BOSS
+func _spawn_boss() -> void:
+	var b = level_data.get("boss", null)
+	if b == null:
+		return
+	var boss := BOSS_SCENE.instantiate()
+	var x := int(b["x"])
+	boss.position = Vector2(float(x) * TILE + TILE * 0.5, float(_ground_row_at(x) + 1) * TILE)
+	boss.target = player
+	entities.add_child(boss)
+	print("[关卡] BOSS 出现在 x=%d" % x)
+	# BOSS 出场，音乐切到高潮
+	Audio.set_music_intensity(1)
+
+
+## 那一列的地面在第几行。找不到返回 SURFACE。
+func _ground_row_at(x: int) -> int:
+	for y in range(SURFACE_ROW, height):
+		var key: String = tile_names.get(_row(y)[x], "")
+		if key == "":
+			continue
+		if key.begins_with("bridge_") or key.begins_with("ladder_"):
+			continue
+		return y
+	return SURFACE_ROW
+
+
+## 落石砸到玩家
+func _on_rock_hit(p: Player) -> void:
+	if p == null or p.dead:
+		return
+	if p.is_shielded():
+		return
+	p.take_damage(p.global_position.x)
+	p.add_shake(3.0)
+
+
 ## 撒一把碎块
 func _spawn_debris(world_pos: Vector2, color: Color, count: int, speed: float = 130.0) -> void:
 	var d := DEBRIS_SCENE.instantiate()
@@ -333,6 +443,8 @@ func _on_time_up() -> void:
 func _process(_delta: float) -> void:
 	if Game.finished or player == null or player.dead:
 		return
+	# 按关卡节奏切音乐的紧张感
+	_update_intensity()
 	if player.global_position.x < float((width - CLEAR_COL) * TILE):
 		# 还没走到出口
 		if _shown_short != 0:
@@ -348,6 +460,11 @@ func _process(_delta: float) -> void:
 		return
 	Audio.play_sfx("power_up")
 	Game.clear_level()
+	# 记成绩、算星星
+	var stars := Progress.record_clear(
+		Game.level_index, Game.time_left, time_limit,
+		Game.coins, Game.coin_goal, total_coins, Game.lives)
+	Game.stars_earned.emit(stars)
 
 
 func _on_player_died() -> void:

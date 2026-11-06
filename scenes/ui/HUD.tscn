@@ -93,9 +93,16 @@ offset_right = 220.0
 offset_bottom = 45.0
 theme = ExtResource("2_theme")
 
-[node name="Message" type="Label" parent="MessagePanel"]
+[node name="Box" type="VBoxContainer" parent="MessagePanel"]
+theme_override_constants/separation = 6
+
+[node name="Message" type="Label" parent="MessagePanel/Box"]
 theme_override_colors/font_color = Color(1, 0.95, 0.65, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 28
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Stars" type="HBoxContainer" parent="MessagePanel/Box"]
+theme_override_constants/separation = 6
+alignment = 1

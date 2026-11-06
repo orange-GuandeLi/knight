@@ -21,10 +21,13 @@ const DANGER_TIME := 10.0
 @onready var time_label: Label = $Row/Time
 @onready var score_label: Label = $Row/Score
 @onready var message_panel: PanelContainer = $MessagePanel
-@onready var message: Label = $MessagePanel/Message
+@onready var message: Label = $MessagePanel/Box/Message
+@onready var stars_box: HBoxContainer = $MessagePanel/Box/Stars
 
 ## 当前显示的是不是「还差多少金币」那句提示
 var _short_msg := false
+## 本关拿到的星星数
+var _stars := 0
 
 
 func _ready() -> void:
@@ -35,6 +38,7 @@ func _ready() -> void:
 	Game.combo_changed.connect(_on_changed)
 	Game.time_changed.connect(_on_time)
 	Game.coin_goal_short.connect(_on_coin_goal_short)
+	Game.stars_earned.connect(_on_stars_earned)
 	Game.game_over.connect(_on_game_over)
 	Game.level_cleared.connect(_on_cleared)
 	Game.all_levels_cleared.connect(_on_all_cleared)
@@ -114,6 +118,13 @@ func _on_game_over() -> void:
 func _on_cleared() -> void:
 	var tail := "PRESS ENTER" if not Game.all_cleared else "PRESS R"
 	_set_message("LEVEL CLEAR!\nSCORE %d   %s" % [Game.score, tail])
+
+
+## 通关结算：显示拿到的星星
+func _on_stars_earned(stars: int) -> void:
+	_stars = stars
+	for i in stars_box.get_child_count():
+		(stars_box.get_child(i) as Label).text = "*" if i < stars else ""
 
 
 func _on_all_cleared() -> void:

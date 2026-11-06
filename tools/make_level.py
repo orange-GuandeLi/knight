@@ -198,7 +198,8 @@ def place_decor(trees, grass):
     return conflicts
 
 
-def make_data(trees, grass, conflicts, time_limit, spawn=None):
+def make_data(trees, grass, conflicts, time_limit, spawn=None, platforms=None,
+              crumbles=None, rocks=None, boss=None, sections=None):
     clear_sky()
     lines = []
     for y in range(TOP_ROWS, HEIGHT):
@@ -220,7 +221,127 @@ def make_data(trees, grass, conflicts, time_limit, spawn=None):
         },
         "time_limit": time_limit,
         "coin_goal": goal,
+        "platforms": platforms or [],
+        "crumbles": crumbles or [],
+        "rocks": rocks or [],
+        "boss": boss,
+        "sections": sections or [],
     }, conflicts
+
+
+# ---------------------------------------------------------------- 移动平台
+#
+# x/y = 左上角那一格的坐标，tiles = 几块砖宽，dx/dy = 一趟走多远（像素），
+# speed = 速度，phase = 起始相位（错开几块平台的节奏）。
+
+PLATFORMS_1 = [
+    # 第一个坑上方来回横移的「船」：踩着它过河
+    {"x": 14, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 38, "phase": 0.0},
+    # 水池上的横移平台
+    {"x": 70, "y": 26, "tiles": 3, "dx": 72, "dy": 0, "speed": 42, "phase": 0.4},
+    # 冰面上方的小平台，可以踩上去歇脚
+    {"x": 168, "y": 24, "tiles": 2, "dx": 56, "dy": 0, "speed": 40, "phase": 0.2},
+]
+
+PLATFORMS_2 = [
+    # 断崖处的上下升降平台
+    {"x": 33, "y": 24, "tiles": 2, "dx": 0, "dy": -32, "speed": 26, "phase": 0.0},
+    # 水池上的横移平台
+    {"x": 70, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.5},
+    # 冰面上方的小平台
+    {"x": 150, "y": 24, "tiles": 3, "dx": 72, "dy": 0, "speed": 44, "phase": 0.1},
+]
+
+PLATFORMS_3 = [
+    # 水池上的横移平台
+    {"x": 169, "y": 26, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.5},
+    # 冰面上方的小平台
+    {"x": 130, "y": 24, "tiles": 3, "dx": 72, "dy": 0, "speed": 44, "phase": 0.2},
+    # 雪面上方的小平台
+    {"x": 180, "y": 24, "tiles": 3, "dx": 64, "dy": 0, "speed": 40, "phase": 0.7},
+]
+
+
+# ---------------------------------------------------------------- 机关
+#
+# crumbles: 会塌的地板。x/y = 那一块的坐标，tiles = 几块砖宽
+# rocks:    落石。x = 落点列，delay = 第几秒开始掉
+# boss:     BOSS。x = 出生列
+
+CRUMBLES_1 = [
+    # 第一个坑上面：踩着过河会塌，逼你走别的路
+    {"x": 14, "y": 25, "tiles": 2, "material": "dirt"},
+]
+
+ROCKS_1 = [
+    # 高台区的落石区
+    {"x": 47, "delay": 1.0},
+    {"x": 49, "delay": 2.2},
+]
+
+CRUMBLES_2 = [
+    {"x": 33, "y": 25, "tiles": 2, "material": "dirt"},
+    {"x": 90, "y": 25, "tiles": 2, "material": "gold"},
+]
+
+ROCKS_2 = [
+    {"x": 78, "delay": 1.4},
+    {"x": 82, "delay": 2.6},
+]
+
+CRUMBLES_3 = [
+    {"x": 120, "y": 25, "tiles": 3, "material": "dirt"},
+]
+
+ROCKS_3 = [
+    {"x": 160, "delay": 1.2},
+    {"x": 164, "delay": 2.4},
+]
+
+BOSS_3 = {"x": 224}
+
+# 关卡节奏：每一段标一个「角色」，关卡编辑器按顺序读
+# intro    = 开场铺垫，安全
+# challenge = 小挑战
+# reward   = 奖励区（检查点 / 水果）
+# climax   = 高潮（密集敌人、机关）
+# outro    = 收尾冲刺
+
+SECTIONS_1 = [
+    ["intro", 0, 13],
+    ["challenge", 14, 33],
+    ["reward", 34, 52],
+    ["challenge", 53, 68],
+    ["climax", 69, 105],
+    ["reward", 106, 122],
+    ["challenge", 123, 147],
+    ["climax", 148, 177],
+    ["outro", 178, 239],
+]
+
+SECTIONS_2 = [
+    ["intro", 0, 10],
+    ["challenge", 11, 32],
+    ["climax", 33, 47],
+    ["reward", 48, 69],
+    ["challenge", 70, 88],
+    ["climax", 89, 112],
+    ["reward", 113, 132],
+    ["climax", 133, 170],
+    ["outro", 171, 229],
+]
+
+SECTIONS_3 = [
+    ["intro", 0, 18],
+    ["challenge", 19, 33],
+    ["climax", 34, 58],
+    ["reward", 59, 74],
+    ["challenge", 75, 96],
+    ["climax", 97, 128],
+    ["reward", 129, 156],
+    ["climax", 157, 190],
+    ["outro", 191, 229],
+]
 
 
 # ---------------------------------------------------------------- 第 1 关
@@ -247,7 +368,7 @@ def build_level_01():
 
     # 5. 史莱姆巡逻区
     ground(34, 44)
-    put(38, 25, "e")
+    put(36, 25, "e")        # 别放在梯子(45)旁边，滚球会撞到爬梯的人
     coins(35, 37, 24)
 
     # 6. 梯子 + 高台 + 问号块
@@ -263,8 +384,8 @@ def build_level_01():
 
     # 8. 双史莱姆 + 感叹号块 + 检查点
     ground(59, 68)
-    put(61, 25, "e")
-    put(66, 25, "e")
+    put(60, 25, "e")
+    put(68, 25, "e")         # 离检查点远点，别在复活点旁边
     put(65, 22, "2")
     put(65, 25, "k")          # 检查点
     coins(62, 64, 24)
@@ -393,7 +514,8 @@ def build_level_01():
 
     fill_pits_with_water()
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 240)
+    data, conflicts = make_data(trees, grass, conflicts, 240, platforms=PLATFORMS_1,
+        crumbles=CRUMBLES_1, rocks=ROCKS_1, sections=SECTIONS_1)
     return data, conflicts
 
 
@@ -560,7 +682,8 @@ def build_level_02():
 
     fill_pits_with_water()
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 280)
+    data, conflicts = make_data(trees, grass, conflicts, 280, platforms=PLATFORMS_2,
+        crumbles=CRUMBLES_2, rocks=ROCKS_2, sections=SECTIONS_2)
     return data, conflicts
 
 
@@ -726,7 +849,8 @@ def build_level_03():
 
     fill_pits_with_water()
     conflicts = place_decor(trees, grass)
-    data, conflicts = make_data(trees, grass, conflicts, 300)
+    data, conflicts = make_data(trees, grass, conflicts, 300, platforms=PLATFORMS_3,
+        crumbles=CRUMBLES_3, rocks=ROCKS_3, boss=BOSS_3, sections=SECTIONS_3)
     return data, conflicts
 
 

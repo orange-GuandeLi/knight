@@ -92,6 +92,8 @@ var shield := 0.0           # 水果给的护盾剩余时间
 var _shake := 0.0           # 震屏强度
 var _squash := Vector2.ONE  # 精灵的挤压比例
 var _was_on_floor := true
+var _last_wall := 0         # 上一次蹬的是哪面墙
+var _same_wall_chain := 0   # 连续蹬同一面墙的次数
 var in_water := false
 var on_ice := false
 var on_snow := false
@@ -201,10 +203,13 @@ func _physics_process(delta: float) -> void:
 	if wall_dir != 0 and not on_ground and jump_buffer > 0.0:
 		jump_buffer = 0.0
 		velocity.x = -float(wall_dir) * WALL_JUMP_X
-		velocity.y = WALL_JUMP_Y
+		velocity.y = WALL_JUMP_Y * _wall_chain_multiplier()
 		wall_lock = WALL_LOCK
-		jumps_left = 1          # 蹬完还剩一次二段跳
-		coyote = 0.0
+		# 蹬完二段跳回满，可以蹬同一面墙连着往上跳
+		jumps_left = MAX_JUMPS
+		# 记住刚蹬的是哪面墙，同一面墙连跳给额外高度
+		_last_wall = wall_dir
+		_same_wall_chain += 1
 		rolling = false
 		Audio.play_sfx("jump")
 		_apply_gravity(delta, GRAVITY, MAX_FALL)
@@ -306,6 +311,7 @@ func _physics_process(delta: float) -> void:
 		jumps_left = MAX_JUMPS
 		bonus_jumps = 0            # 蘑菇给的额外跳跃，落地就没了
 		dash_ready = true          # 落地恢复空中冲刺
+		_same_wall_chain = 0       # 落地了，连墙蹬的加成清零
 		# 落地：压扁一下。踩怪连踩也在这一刻清零。
 		if not _was_on_floor:
 			_squash_to(1.22, 0.78)
@@ -324,7 +330,27 @@ func _physics_process(delta: float) -> void:
 			head_bump.emit(Vector2(global_position.x, col.get_position().y - 1.0))
 			velocity.y = 0.0
 
+	# 踩到 BOSS
+	if not on_ground and velocity.y > 0.0:
+		var boss := _boss_underfoot()
+		if boss != null:
+			boss.stomp()
+			velocity.y = BOUNCE_VELOCITY
+
 	_update_anim()
+
+
+## 脚下有没有 BOSS
+func _boss_underfoot() -> Node:
+	for c in get_tree().get_nodes_in_group("boss"):
+		var b := c as Node2D
+		if b == null:
+			continue
+		if absf(b.global_position.x - global_position.x) < 26.0 \
+				and global_position.y > b.global_position.y - 34.0 \
+				and global_position.y < b.global_position.y + 6.0:
+			return c
+	return null
 
 
 ## 移动，并把角色关在关卡范围内。
@@ -364,6 +390,13 @@ func _probe(mask: int, offset: Vector2, size: Vector2) -> bool:
 	q.collide_with_bodies = true
 	q.collide_with_areas = false
 	return not space.intersect_shape(q, 1).is_empty()
+
+
+## 同一面墙连续蹬，跳得更高。左右换着蹬就不算连击。
+func _wall_chain_multiplier() -> float:
+	if _last_wall != 0 and _last_wall == wall_dir:
+		return 1.0 + minf(float(_same_wall_chain - 1), 2.0) * 0.12
+	return 1.0
 
 
 ## 当前贴着的墙在哪边：-1 = 墙在左，1 = 墙在右，0 = 没贴墙

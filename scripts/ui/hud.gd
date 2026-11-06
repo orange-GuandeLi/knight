@@ -33,8 +33,14 @@ func _ready() -> void:
 	Game.game_over.connect(_on_game_over)
 	Game.level_cleared.connect(_on_cleared)
 	Game.all_levels_cleared.connect(_on_all_cleared)
+	Game.level_started.connect(_on_level_started)
 	message.text = ""
 	_refresh()
+
+
+## 换关 / 重开：把上一关的通关提示清掉，不然会挡住新一关的画面
+func _on_level_started() -> void:
+	message.text = ""
 
 
 func _on_changed(_v: int) -> void:

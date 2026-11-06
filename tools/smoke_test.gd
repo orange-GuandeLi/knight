@@ -272,6 +272,8 @@ func _on_physics() -> void:
 				"level_index=%d" % Game.level_index)
 			_check("第 2 关已载入", level.data_path.ends_with("level02.json"),
 				"数据=%s" % level.data_path)
+			_check("换关后清掉通关提示", hud.get_node("Message").text == "",
+				"提示='%s'" % hud.get_node("Message").text.replace("\n", " / "))
 
 		# ---------- 墙跳（第 3 关的竖井）----------
 		1300:

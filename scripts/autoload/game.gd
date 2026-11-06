@@ -11,6 +11,8 @@ signal time_up()
 signal game_over()
 signal level_cleared()
 signal all_levels_cleared()
+## 新一关开始（重开或换关）。HUD 靠它清掉上一关的通关提示。
+signal level_started()
 
 const MAX_HEALTH := 3
 const START_LIVES := 3
@@ -73,6 +75,7 @@ func reset() -> void:
 	coins_changed.emit(coins, total_coins)
 	combo_changed.emit(combo)
 	time_changed.emit(time_left)
+	level_started.emit()
 
 
 ## 换关时用：总分保留，血量、命数、金币、连击重置。
@@ -92,6 +95,7 @@ func reset_for_next_level() -> void:
 	coins_changed.emit(coins, total_coins)
 	combo_changed.emit(combo)
 	time_changed.emit(time_left)
+	level_started.emit()
 
 
 ## 前进到下一关。返回 false 表示已经是最后一关了。

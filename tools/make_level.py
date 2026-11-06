@@ -43,12 +43,12 @@ TILES = {
     "7": "block_stone_question", "8": "block_stone_exclaim",
     "w": "water_ice_surface_body",
     "v": "water_ice_body",
-    # 冰面：地表一格冰，底下填冰石
-    "i": "ice",
-    "I": "ice_stone",
-    # 雪面：地表一格雪，底下填雪石
-    "s": "snow_ice",
-    "S": "snow_stone",
+    # 冰面：地表用「冰面砖」（上面一层冰壳 + 分隔线），底下填「冰体砖」（通体一块冰）
+    "i": "ice_stone",
+    "I": "ice",
+    # 雪面：同理，地表用「雪面砖」，底下填「雪体砖」
+    "s": "snow_stone",
+    "S": "snow_ice",
 }
 
 # 实体字符表

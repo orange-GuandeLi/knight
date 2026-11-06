@@ -72,10 +72,10 @@
   "8": "block_stone_exclaim",
   "w": "water_ice_surface_body",
   "v": "water_ice_body",
-  "i": "ice",
-  "I": "ice_stone",
-  "s": "snow_ice",
-  "S": "snow_stone"
+  "i": "ice_stone",
+  "I": "ice",
+  "s": "snow_stone",
+  "S": "snow_ice"
  },
  "entities": {
   "o": "coin",
